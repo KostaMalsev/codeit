@@ -1,17 +1,10 @@
 /*jsx parser*/
 
-async function ParseJSX(code)
-{
-  let res = '';
-  if(! (typeof(Babel)=='undefined )
-  {
-     //res = Babel.transform(`const name = 'Josh Perez'; const element = <h1>Hello, {name}</h1>;`);, { presets: ["env", "es2015", "react"] }).code;
-     res = Babel.transform(code, { presets: ["env", "es2015", "react"] }).code;
-     
-  }else{
-    res = '<div> No babel loaded </div>';
-  }
-
+async function ParseJSX(code) {
+  
+  const res = Babel.transform(code, { presets: ["env", "es2015", "react"] });
+  
+  return res;
   
 }
 
