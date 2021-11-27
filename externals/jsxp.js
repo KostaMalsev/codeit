@@ -1,6 +1,7 @@
-/*jsx parser*/
 
-async function ParseJSX(code) {
+// JSX parser
+
+function parseJSX(code) {
   
   const res = Babel.transform(code, { presets: ["env", "es2015", "react"] });
   
