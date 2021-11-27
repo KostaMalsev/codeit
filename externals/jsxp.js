@@ -3,7 +3,7 @@
 
 function parseJSX(code) {
   
-  const res = Babel.transform(code, { presets: ["env", "es2015", "react"] });
+  const res = Babel.transform(code, { presets: ["react"] });
   
   return res;
   
