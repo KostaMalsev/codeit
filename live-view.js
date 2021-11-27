@@ -134,7 +134,7 @@ function renderLiveViewHTML(file) {
 
         }
 
-        addScript(frameDocument, decodeUnicode(resp.content));
+        addScript(frameDocument, decodeUnicode(resp.content), '', script.type);
 
         // remove original tag
         script.remove();
