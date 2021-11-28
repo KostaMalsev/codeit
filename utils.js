@@ -3,7 +3,9 @@ const body = document.body,
 
       cd = document.querySelector('cd-el'),
 
-      bottomFloat = document.querySelector('.bottom-float'),
+      bottomWrapper = document.querySelector('.bottom-wrapper'),
+      
+      bottomFloat = bottomWrapper.querySelector('.bottom-float'),
       sidebarOpen = bottomFloat.querySelector('.sidebar-open'),
       floatLogo = sidebarOpen.querySelector('.logo'),
       pushWrapper = bottomFloat.querySelector('.push-wrapper'),
@@ -45,7 +47,7 @@ const body = document.body,
 
 
 // version
-const version = '1.6.8';
+const version = '1.7.0';
 versionEl.innerText = version;
 
 
@@ -107,6 +109,8 @@ function load() {
 const isMobile = navigator.userAgent.match('Mobile') ?? false;
 const isSafari = isMobile && navigator.userAgent.toLowerCase().indexOf('safari') != -1;
 
+const isSafariApp = isSafari && navigator.standalone;
+
 const isMac = navigator.platform.indexOf('Mac') > -1;
 const isWindows = navigator.platform.indexOf('Win') > -1;
 
@@ -124,6 +128,12 @@ if (isSafari) {
 
   body.classList.add('safari');
 
+}
+
+if (isSafariApp) {
+  
+  body.classList.add('safari-app');
+  
 }
 
 if (isMac) {

@@ -446,6 +446,10 @@ addButton.addEventListener('click', () => {
 
     // add new file to DOM
     fileWrapper.prepend(fileEl);
+          
+    // focus file
+    fileEl.querySelector('.name').focus();
+    fileEl.scrollIntoViewIfNeeded();
 
 
     // add push button event listener
@@ -465,11 +469,11 @@ addButton.addEventListener('click', () => {
     let pushListener = pushWrapper.addEventListener('click', pushNewFileInHTML);
 
 
-    // animate file
+    // on next frame
     onNextFrame(() => {
-
+      
+      // animate file
       fileEl.classList.remove('hidden');
-      fileEl.querySelector('.name').focus();
 
     });
 
@@ -487,19 +491,60 @@ addButton.addEventListener('click', () => {
         // make file name uneditable
         fileEl.querySelector('.name').setAttribute('contenteditable', 'false');
 
-        window.setTimeout(() => {
+        
+        // pad file name with random number of invisible chars
+        // to prevent an empty file and fix git sha generation
+        let fileContent = '';
+        const numOfChars = Math.floor(Math.random() * 50) + 1;
+        fileContent.padStart(numOfChars, ' ');
+        
+        
+        // validate file name
+        
+        // get file name
+        let fileName = fileEl.querySelector('.name').textContent.replaceAll('\n', '');
+        
+        // replace all spaces in name with dashes
+        fileName = fileName.replaceAll(' ', '-');
+        
+        // if another file in the current directory
+        // has the same name, add a differentiating number
+        fileWrapper.querySelectorAll('.item.file').forEach(fileElem => {
+                    
+          if (fileElem !== fileEl
+              && (fileName === fileElem.querySelector('.name').textContent)) {
+            
+            // split extension from file name
+            fileName = splitFileName(fileName);
+            
+            // add a differentiating number
+            // and reconstruct file name
+            fileName = fileName[0] + '-1' + fileName[1];
+            
+          }
+          
+        });
+        
+        fileEl.querySelector('.name').textContent = fileName;
+        
+        
+        // change selected file
+        changeSelectedFile(treeLoc.join(), fileContent, fileName, fileContent, getFileLang(fileName),
+                           [0, 0], [0, 0], true);
+        
+        
+        // if on desktop, open file
+        
+        if (!isMobile) {
 
           // show file content in codeit
-          cd.textContent = '\n';
+          cd.textContent = fileContent;
 
           // change codeit lang
-          cd.lang = selectedFile.lang;
+          cd.lang = getFileLang(fileName);
 
           // set caret pos in codeit
-          cd.setSelection(selectedFile.caretPos[0], selectedFile.caretPos[1]);
-
-          // set scroll pos in codeit
-          cd.scrollTo(selectedFile.scrollPos[0], selectedFile.scrollPos[1]);
+          cd.setSelection(0, 0);
 
           // clear codeit history
           cd.history = [];
@@ -507,34 +552,19 @@ addButton.addEventListener('click', () => {
           // update line numbers
           updateLineNumbersHTML();
 
-          // if on mobile device
-          if (isMobile) {
+          // check codeit scrollbar
+          checkScrollbarArrow();
 
-            // update bottom float
-            updateFloat();
+        }
 
-          } else { // if on desktop
-
-            // check codeit scrollbar
-            checkScrollbarArrow();
-
-          }
-
-        }, (2 - 0.18) * 1000);
-
-
-        // push new file
-
-        const fileName = fileEl.innerText.replaceAll('\n', '');
-
+        
         // create commit
         const commitMessage = 'Create ' + fileName;
-        let str = ''; let num = Math.floor(Math.random(100)*100); for(let i=0;i<num;i++){str+='\r'}; console.log(str,num);
-
+        
         const commitFile = {
           name: fileName,
           dir: treeLoc.join(),
-          content: encodeUnicode(str)
+          content: encodeUnicode(fileContent)
         };
 
         let commit = {
@@ -549,12 +579,20 @@ addButton.addEventListener('click', () => {
         setAttr(fileEl, 'sha', newSha);
 
         // change selected file
-        changeSelectedFile(treeLoc.join(), newSha, fileName, '\n', getFileLang(fileName),
+        changeSelectedFile(treeLoc.join(), newSha, fileName, fileContent, getFileLang(fileName),
                            [0, 0], [0, 0], true);
 
         // Git file is eclipsed (not updated) in browser private cache,
         // so store the updated file in modifiedFiles object for 1 minute after commit
-        onFileEclipsedInCache(false, newSha, selectedFile);
+        if (modifiedFiles[fileContent]) {
+          
+          onFileEclipsedInCache(fileContent, newSha, selectedFile);
+          
+        } else {
+          
+          onFileEclipsedInCache(false, newSha, selectedFile);
+          
+        }
 
 
         // remove push listener
