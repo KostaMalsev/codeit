@@ -415,8 +415,14 @@ async function getScriptFile(scriptPath) {
 
   let fileSha;
 
+  //   `../../../build/three.module.js`
+
   // if file is above current directory
   if (contents !== dirPath) {
+
+    if(fullScriptPath.includes('../../')){ //TBD@@
+      fullScriptPath = fullScriptPath.split('../../')[1];
+    }
 
     dirPath = fullScriptPath.split('/');
     dirPath.pop();
