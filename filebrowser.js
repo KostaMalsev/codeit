@@ -23,21 +23,21 @@ sidebarToggle.addEventListener('click', () => {
 // call this function when signed in to github
 // to render sidebar
 async function renderSidebarHTML() {
-  
+
   // if not already loading, start loading
   if (loader.style.opacity != '1') {
     startLoading();
   }
-  
+
   // hide search screen
   header.classList.remove('searching');
-  
+
   // map tree location
   const [user, repo, contents] = treeLoc;
 
   // get items in current tree from git
   const resp = await git.getItems(treeLoc);
-  
+
   let modifiedFilesResp = JSON.parse(JSON.stringify(modifiedFiles));
 
   // save rendered HTML
@@ -77,10 +77,10 @@ async function renderSidebarHTML() {
 
     // if navigating in repository
     if (repo != '') {
-      
+
       // show add button
       addButton.classList.remove('hidden');
-      
+
       // render files
       resp.forEach(item => {
 
@@ -88,7 +88,7 @@ async function renderSidebarHTML() {
         if (item.type == 'file') {
 
           let file = getLatestVersion(item);
-          
+
           if (modifiedFiles[file.sha]) {
             delete modifiedFilesResp[file.sha];
           }
@@ -123,15 +123,15 @@ async function renderSidebarHTML() {
           `;
 
         }
-        
+
       });
-        
+
 
       // render modified files
       Object.values(modifiedFilesResp).forEach(item => {
-        
+
         if (item.dir == treeLoc.join()) {
-          
+
           // add modified flag to file
           let modified = '';
           if (!item.eclipsed) modified = ' modified';
@@ -147,16 +147,16 @@ async function renderSidebarHTML() {
             </div>
           </div>
           `;
-          
+
         }
 
       });
-      
+
     } else { // else, show all repositories
-      
+
       // hide add button
       addButton.classList.add('hidden');
-      
+
       // render repositories
       resp.forEach(item => {
 
@@ -202,7 +202,7 @@ async function renderSidebarHTML() {
       selectedEl.scrollIntoViewIfNeeded();
 
     }
-    
+
     // protect unsaved code
     protectUnsavedCode();
 
@@ -340,9 +340,9 @@ async function loadFileInHTML(fileEl, fileSha) {
   // show all files
   let files = fileWrapper.querySelectorAll('.item[style="display: none;"]');
   files.forEach(file => { file.style.display = '' });
-  
+
   header.classList.remove('searching');
-  
+
   // clear existing selections
   if (fileWrapper.querySelector('.selected')) {
     fileWrapper.querySelector('.selected').classList.remove('selected');
@@ -361,7 +361,7 @@ async function loadFileInHTML(fileEl, fileSha) {
     startLoading();
 
     // get file from git
-    const resp = await git.getFile(treeLoc, fileEl.innerText);
+    const resp = await git.getFile(treeLoc, fileSha);
 
     // change selected file
     changeSelectedFile(treeLoc.join(), fileSha, fileEl.innerText, resp.content, getFileLang(fileEl.innerText),
@@ -378,10 +378,10 @@ async function loadFileInHTML(fileEl, fileSha) {
                        modFile.caretPos, modFile.scrollPos, false);
 
   }
-  
+
   // show file content in codeit
   cd.textContent = decodeUnicode(selectedFile.content);
-  
+
   // change codeit lang
   cd.lang = selectedFile.lang;
 
@@ -453,10 +453,10 @@ sidebarTitle.addEventListener('click', () => {
 
 // create new file on click of button
 addButton.addEventListener('click', () => {
-  
+
   // if not already adding a new file
   if (!fileWrapper.querySelector('.focused')) {
-  
+
     // clear existing selections
     if (fileWrapper.querySelector('.selected')) {
       fileWrapper.querySelector('.selected').classList.remove('selected');
@@ -478,7 +478,7 @@ addButton.addEventListener('click', () => {
 
     // add new file to DOM
     fileWrapper.prepend(fileEl);
-          
+
     // focus file
     fileEl.querySelector('.name').focus();
     fileEl.scrollIntoViewIfNeeded();
@@ -488,11 +488,11 @@ addButton.addEventListener('click', () => {
     const pushWrapper = fileEl.querySelector('.push-wrapper');
 
     fileEl.querySelector('.name').addEventListener('keydown', (e) => {
-      
+
       if (e.key === 'Enter') {
 
         e.preventDefault();
-        
+
         onNextFrame(pushNewFileInHTML);
 
       }
@@ -504,7 +504,7 @@ addButton.addEventListener('click', () => {
 
     // on next frame
     onNextFrame(() => {
-      
+
       // animate file
       fileEl.classList.remove('hidden');
 
@@ -525,49 +525,49 @@ addButton.addEventListener('click', () => {
         fileEl.querySelector('.name').setAttribute('contenteditable', 'false');
         fileEl.querySelector('.name').blur();
 
-        
+
         // pad file content with random number of invisible chars
         // to generate unique file content and fix git sha generation
         const randomNum = Math.floor(Math.random() * 100) + 1;
         const fileContent = '\r\n'.padEnd(randomNum, '\r');
-        
-        
+
+
         // validate file name
-        
+
         // get file name
         let fileName = fileEl.querySelector('.name').textContent.replaceAll('\n', '');
-        
+
         // replace all spaces in name with dashes
         fileName = fileName.replaceAll(' ', '-');
-        
+
         // if another file in the current directory
         // has the same name, add a differentiating number
         fileWrapper.querySelectorAll('.item.file').forEach(fileElem => {
-                    
+
           if (fileElem !== fileEl
               && (fileName === fileElem.querySelector('.name').textContent)) {
-            
+
             // split extension from file name
             fileName = splitFileName(fileName);
-            
+
             // add a differentiating number
             // and reconstruct file name
             fileName = fileName[0] + '-1' + fileName[1];
-            
+
           }
-          
+
         });
-        
+
         fileEl.querySelector('.name').textContent = fileName;
-        
-        
+
+
         // change selected file
         changeSelectedFile(treeLoc.join(), fileContent, fileName, encodeUnicode('\r\n'), getFileLang(fileName),
                            [0, 0], [0, 0], true);
-        
-        
+
+
         // if on desktop, open file
-        
+
         if (!isMobile) {
 
           // show file content in codeit
@@ -590,10 +590,10 @@ addButton.addEventListener('click', () => {
 
         }
 
-        
+
         // create commit
         const commitMessage = 'Create ' + fileName;
-        
+
         const commitFile = {
           name: fileName,
           dir: treeLoc.join(),
@@ -618,13 +618,13 @@ addButton.addEventListener('click', () => {
         // Git file is eclipsed (not updated) in browser private cache,
         // so store the updated file in modifiedFiles object for 1 minute after commit
         if (modifiedFiles[fileContent]) {
-          
+
           onFileEclipsedInCache(fileContent, newSha, selectedFile);
-          
+
         } else {
-          
+
           onFileEclipsedInCache(false, newSha, selectedFile);
-          
+
         }
 
 
@@ -668,14 +668,14 @@ addButton.addEventListener('click', () => {
       }
 
     }
-    
+
   } else {
-    
+
     // if already adding a new file, focus it
     fileWrapper.querySelector('.item.focused .name').focus();
-    
+
   }
-  
+
 })
 
 
@@ -686,7 +686,7 @@ learnShare.addEventListener('click', () => {
     title: "Share Codeit",
     text: "Hey, I'm using Codeit to code. It's a mobile code editor connected to Git. Join me! " + window.location.origin
   };
-  
+
   if (!isWindows) {
 
     try {
@@ -701,16 +701,16 @@ learnShare.addEventListener('click', () => {
                   '_blank');
 
     }
-    
+
   } else {
-    
+
     // share on Twitter
     window.open('https://twitter.com/intent/tweet' +
                 '?text=' + encodeURIComponent(shareData.text.toLowerCase()),
                 '_blank');
-    
+
   }
-  
+
 })
 
 // close learn page on click of button
@@ -848,10 +848,10 @@ function protectUnsavedCode() {
 
     // update line numbers
     updateLineNumbersHTML();
-    
+
     // if on mobile, show sidebar
     if (isMobile) {
-      
+
       // don't transition
       body.classList.add('notransition');
 
@@ -864,9 +864,9 @@ function protectUnsavedCode() {
         body.classList.remove('notransition');
 
       });
-      
+
     }
-    
+
     // change selected file to empty file
     changeSelectedFile('', '', '', '', '', [0, 0], [0, 0], false);
 
@@ -875,20 +875,20 @@ function protectUnsavedCode() {
 }
 
 function setupEditor() {
-  
+
   // if code in storage
   if (selectedFile.content) {
 
     // set codeit to code
     cd.lang = selectedFile.lang || 'plain';
     cd.textContent = decodeUnicode(selectedFile.content);
-    
+
     // if sidebar isn't expanded, focus codeit
     if (!(isMobile && body.classList.contains('expanded'))) {
-      
+
       // set caret pos in code
       cd.setSelection(selectedFile.caretPos[0], selectedFile.caretPos[1]);
-      
+
     }
 
     // scroll to pos in code
@@ -898,16 +898,16 @@ function setupEditor() {
     updateLineNumbersHTML();
 
   }
-  
-  
+
+
   // add editor event listeners
-  
+
   cd.on('modify', codeChange);
   cd.on('scroll', onEditorScroll);
   cd.on('caretmove', saveSelectedFileCaretPos);
-  
+
   if (!isMobile) cd.on('modify scroll', checkScrollbarArrow);
-  
+
   // update on screen resize
   window.addEventListener('resize', () => {
 
@@ -918,7 +918,7 @@ function setupEditor() {
     if (!isMobile) checkScrollbarArrow();
 
   });
-  
+
   // update line numbers when finished highlighting
   Prism.hooks.add('complete', function (env) {
 
@@ -930,16 +930,16 @@ function setupEditor() {
     updateLineNumbersHTML();
 
   });
-  
+
   // disable context menu
   if (!isMobile) {
-  
+
     window.addEventListener('contextmenu', (e) => {
 
       e.preventDefault();
 
     });
-    
+
   }
 
   // disable Ctrl/Cmd+S
@@ -963,7 +963,7 @@ function updateLineNumbersHTML() {
   // if mobile but not in landscape,
   // or if editor isn't in view, return
   if (isMobile && !isLandscape) {
-    
+
     if (cd.querySelector('.line-numbers-rows')) {
 
       cd.querySelector('.line-numbers-rows').remove();
@@ -974,7 +974,7 @@ function updateLineNumbersHTML() {
     cd.style.setProperty('--gutter-length', '');
 
     return;
-    
+
   }
 
   cd.classList.add('line-numbers');
@@ -998,7 +998,7 @@ function setupSidebar() {
     // show sidebar
     toggleSidebar(true);
     saveSidebarStateLS();
-    
+
     onNextFrame(() => {
 
       body.classList.remove('notransition');
