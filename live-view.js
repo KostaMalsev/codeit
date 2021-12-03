@@ -462,20 +462,26 @@ async function getImports(script) {
   let scriptContent = script;
 
   const lines = script.split('\n');
-  const importReg = /[ /t/n]*import/i;
+  const importReg = /[ /t/n]*import /i;
+  const importReg2 = /[ /t/n]*from[ /t]*'/i;
 
   for (let i = 0; i < lines.length; i++) {
 
     const words = lines[i].trim().split(' ');
 
-    if (importReg.exec(lines[i])) {
+    if (importReg.exec(lines[i]) || importReg2.exec(lines[i]) ) {
+
 
       let importedScriptPath = words[words.length-1].slice(1, -2); // remove first char and two last chars
 
       console.log('path', importedScriptPath);
+      if(importReg2.exec(lines[i])){
+        console.log('Special case!',lines[i]);
+      }
+
 
       // if imported script is a javascript file
-      if (importedScriptPath.endsWith('.js')) {
+      if (importedScriptPath.endsWith('.js') ) {
 
         // fetch script
         let importedScript = await getScriptFile(importedScriptPath);
@@ -484,13 +490,13 @@ async function getImports(script) {
         importedScript = await getImports(decodeUnicode(importedScript));
 
         // replace import statment with encoded script
-        importedScript = importedScript.replace(importedScriptPath,
+        scriptContent = scriptContent.replace(importedScriptPath,
                                                 'data:text/javascript;base64,' +
                                                 encodeURIComponent(encodeUnicode(importedScript)));
 
       } else {
 
-        console.log('err');
+        console.log('err',words,lines[i+1],lines[i+2]);
 
       }
 
