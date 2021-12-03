@@ -37,6 +37,8 @@ async function renderSidebarHTML() {
 
   // get items in current tree from git
   const resp = await git.getItems(treeLoc);
+  
+  let modifiedFilesResp = JSON.parse(JSON.stringify(modifiedFiles));
 
   // save rendered HTML
   let out = '';
@@ -86,6 +88,10 @@ async function renderSidebarHTML() {
         if (item.type == 'file') {
 
           let file = getLatestVersion(item);
+          
+          if (modifiedFiles[file.sha]) {
+            delete modifiedFilesResp[file.sha];
+          }
 
           // add modified flag to file
           let modified = '';
@@ -117,9 +123,35 @@ async function renderSidebarHTML() {
           `;
 
         }
+        
+      });
+        
+
+      // render modified files
+      Object.values(modifiedFilesResp).forEach(item => {
+        
+        if (item.dir == treeLoc.join()) {
+          
+          // add modified flag to file
+          let modified = '';
+          if (!item.eclipsed) modified = ' modified';
+
+          out += `
+          <div class="item file`+ modified +`" sha="`+ item.sha +`">
+            <div class="label">
+              `+ fileIcon +`
+              <a class="name">`+ item.name +`</a>
+            </div>
+            <div class="push-wrapper">
+              `+ pushIcon +`
+            </div>
+          </div>
+          `;
+          
+        }
 
       });
-
+      
     } else { // else, show all repositories
       
       // hide add button
@@ -455,12 +487,13 @@ addButton.addEventListener('click', () => {
     // add push button event listener
     const pushWrapper = fileEl.querySelector('.push-wrapper');
 
-    fileEl.querySelector('.name').addEventListener('keyup', (e) => {
-
+    fileEl.querySelector('.name').addEventListener('keydown', (e) => {
+      
       if (e.key === 'Enter') {
 
         e.preventDefault();
-        pushNewFileInHTML();
+        
+        onNextFrame(pushNewFileInHTML);
 
       }
 
@@ -490,13 +523,13 @@ addButton.addEventListener('click', () => {
 
         // make file name uneditable
         fileEl.querySelector('.name').setAttribute('contenteditable', 'false');
+        fileEl.querySelector('.name').blur();
 
         
-        // pad file name with random number of invisible chars
-        // to prevent an empty file and fix git sha generation
-        let fileContent = '';
-        const numOfChars = Math.floor(Math.random() * 50) + 1;
-        fileContent.padStart(numOfChars, ' ');
+        // pad file content with random number of invisible chars
+        // to generate unique file content and fix git sha generation
+        const randomNum = Math.floor(Math.random() * 100) + 1;
+        const fileContent = '\r\n'.padEnd(randomNum, '\r');
         
         
         // validate file name
@@ -529,7 +562,7 @@ addButton.addEventListener('click', () => {
         
         
         // change selected file
-        changeSelectedFile(treeLoc.join(), fileContent, fileName, fileContent, getFileLang(fileName),
+        changeSelectedFile(treeLoc.join(), fileContent, fileName, encodeUnicode('\r\n'), getFileLang(fileName),
                            [0, 0], [0, 0], true);
         
         
@@ -538,7 +571,7 @@ addButton.addEventListener('click', () => {
         if (!isMobile) {
 
           // show file content in codeit
-          cd.textContent = fileContent;
+          cd.textContent = '\r\n';
 
           // change codeit lang
           cd.lang = getFileLang(fileName);
@@ -579,7 +612,7 @@ addButton.addEventListener('click', () => {
         setAttr(fileEl, 'sha', newSha);
 
         // change selected file
-        changeSelectedFile(treeLoc.join(), newSha, fileName, fileContent, getFileLang(fileName),
+        changeSelectedFile(treeLoc.join(), newSha, fileName, encodeUnicode('\r\n'), getFileLang(fileName),
                            [0, 0], [0, 0], true);
 
         // Git file is eclipsed (not updated) in browser private cache,
@@ -660,7 +693,7 @@ learnShare.addEventListener('click', () => {
 
       navigator.share(shareData);
 
-    } catch(err) {
+    } catch(e) {
 
       // if could not open share dialog, share on Twitter
       window.open('https://twitter.com/intent/tweet' +

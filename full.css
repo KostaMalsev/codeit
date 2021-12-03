@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://rsms.me/inter/inter.css');
 
 html, body {
   background: #313744;
@@ -8,6 +8,12 @@ html, body {
   height: 100%;
   overflow: hidden;
   font-family: 'Inter', system-ui, sans-serif;
+}
+
+@supports (font-variation-settings: normal) {
+  html, body {
+    font-family: 'Inter var', 'Inter', system-ui, sans-serif;
+  }
 }
 
 .focus::before {
@@ -62,7 +68,7 @@ body cd-el {
 
 .bottom-wrapper {
   position: fixed;
-  bottom: env(safe-area-inset-bottom);
+  top: env(safe-area-inset-top, 0px);
   left: 0;
   right: 0;
   height: calc(45px + 56px + 45px);
@@ -71,6 +77,7 @@ body cd-el {
   justify-content: center;
   transition: .4s var(--cubic-function);
   transition-property: transform, height, background;
+  transform: translateY(calc(100vh - 100% - env(safe-area-inset-bottom)));
   will-change: transform;
   z-index: 1001;
 }
@@ -80,25 +87,13 @@ body.notransition .bottom-wrapper {
 }
 
 .bottom-wrapper.hidden {
-  transform: translateY(calc(100% + env(safe-area-inset-bottom)));
+  transform: translateY(100vh);
 }
 
 .bottom-wrapper.expanded {
-  transform: translateY(calc(-100vh + 100% + env(safe-area-inset-bottom)));
+  transform: translateY(0);
   background: #1a1c24;
   height: 33px;
-}
-
-body.safari .bottom-wrapper.expanded {
-  transform: translateY(calc(-100vh + 100% + 81px + env(safe-area-inset-bottom)));
-}
-
-body.safari:not(.safari-app) .bottom-wrapper.expanded {
-  transition-property: transform, background;
-}
-
-body.safari.safari-app .bottom-wrapper.expanded {
-  transform: translateY(calc(-100vh + 81px + env(safe-area-inset-bottom)));
 }
 
 .bottom-float {
@@ -122,7 +117,7 @@ body.safari.safari-app .bottom-wrapper.expanded {
   border-radius: 0;
   box-shadow: 0 0 0 rgb(0 0 0 / 17%), 0 0 0 rgb(0 0 0 / 29%), inset 0 -1px 0 0 rgb(255 255 255 / 10%);
   height: 32px;
-  padding-top: 1px;
+  padding-bottom: 1px;
   pointer-events: none;
 }
 
@@ -130,7 +125,7 @@ body.safari.safari-app .bottom-wrapper.expanded {
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  transition: .4s var(--cubic-function);
+  transition: .4s var(--cubic-function), 0s background;
 }
 
 .bottom-float .sidebar-open {
@@ -149,6 +144,7 @@ body.safari.safari-app .bottom-wrapper.expanded {
 
 .bottom-wrapper .bottom-float .menu {
   transition: .4s var(--cubic-function);
+  transition-property: opacity, margin-left;
 }
 
 .bottom-wrapper.expanded .bottom-float .menu {
@@ -209,6 +205,7 @@ body.safari.safari-app .bottom-wrapper.expanded {
   width: 0;
   padding: 0;
   opacity: 0;
+  border-radius: 0;
   margin-right: -1px;
 }
 
@@ -222,6 +219,60 @@ body.safari.safari-app .bottom-wrapper.expanded {
   left: 12px;
 }
 
+.live-buttons {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateY(45px);
+  height: 32px;
+  opacity: 0;
+  pointer-events: none;
+  transition: .18s var(--ease-function);
+  transition-property: opacity, transform;
+}
+
+.live-buttons .live-button {
+  color: #828689;
+  width: 48px;
+  height: 18px;
+  padding: 6px 0;
+}
+
+.live-buttons .live-button:active {
+  opacity: .5;
+}
+
+.live-buttons .live-button path {
+  pointer-events: none;
+}
+
+.live-buttons .live-button.close {
+  height: 20px;
+}
+
+.live-buttons .live-button.share path.ios {
+  opacity: 0;
+}
+
+body.safari .live-buttons .live-button.share path {
+  opacity: 0;
+}
+
+body.safari .live-buttons .live-button.share path.ios {
+  opacity: 1;
+}
+
+.bottom-wrapper.expanded .live-buttons {
+  opacity: 1;
+  pointer-events: auto;
+  transition-delay: .14s;
+  transform: none;
+}
+
 .live-view {
   position: fixed;
   top: 0;
@@ -232,10 +283,11 @@ body.safari.safari-app .bottom-wrapper.expanded {
   background: #1a1c24;
   color: #d4d5d7;
   box-shadow: inset 1px 0 0 0 #ffffff3d;
-  padding-right: 1px;
+  padding-left: 1px;
   pointer-events: none;
   box-sizing: border-box;
   will-change: transform;
+  transition: none;
   opacity: 0;
   z-index: 1000;
 }
@@ -248,13 +300,13 @@ body:not(.mobile) .live-view {
 
 body.mobile .live-view {
   top: 32px;
-  transform: translateY(calc(100% - 45px - 56px));
+  transform: translateY(calc(100% - 56px));
   transition: .4s var(--cubic-function);
   transition-property: transform, opacity;
 }
 
 .live-view.visible {
-  transform: none;
+  transform: none !important;
   pointer-events: auto;
 }
 
@@ -336,7 +388,6 @@ body.mobile .live-view {
   position: fixed;
   bottom: 5px;
   left: 0;
-  z-index: 1000;
   background: #1a1c24;
   color: #d4d5d7;
   border-radius: 0 500px 500px 0;
@@ -349,6 +400,7 @@ body.mobile .live-view {
               .4s var(--cubic-function) padding, 0s bottom;
   border: 1px solid transparent;
   border-left: 0;
+  z-index: 999;
 }
 
 .bookmark::after {
@@ -426,7 +478,7 @@ body.expanded .sidebar-toggle svg .left {
   padding-right: 1px;
   box-sizing: border-box;
   will-change: transform;
-  z-index: 999;
+  z-index: 998;
 }
 
 /*
@@ -1344,7 +1396,7 @@ body.mobile .bottom-wrapper {
 }
 
 body.mobile.expanded .bottom-wrapper {
-  transform: translateX(100%);
+  transform: translateX(100%) translateY(calc(100vh - 100% - env(safe-area-inset-bottom)));
 }
 
 body.mobile .bookmark {
