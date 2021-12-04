@@ -9,13 +9,17 @@ let githubToken, treeLoc;
 
 
 
+githubToken = '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';
+
+
 window.onload = () => {
 
   githubToken = getStorage('token');
 
   //TBD@@:Temporary
-  githubToken = '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';
-  
+  githubToken = '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';
+  saveAuthTokenLS(githubToken);
+
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
   loginButton.addEventListener('click', () => {
