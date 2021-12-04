@@ -1,14 +1,14 @@
 'use strict';
 
 // update cache names any time any of the cached files change
-const CACHE_NAME = 'static-cache-v202';
+const CACHE_NAME = 'static-cache-v205';
 
 // list of files to cache
 const FILES_TO_CACHE = [
-  
+
   '/lib/codeit.js',
   '/lib/prism.js',
-  
+
   '/lib/codeit-line-numbers.js',
   '/lib/codeit-match-braces.js',
 
@@ -31,13 +31,13 @@ const FILES_TO_CACHE = [
 
   '/fonts/fonts.css',
   '/fonts/googlesansmono.woff2',
-  
+
   'https://rsms.me/inter/inter.css',
   'https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.19',
   'https://rsms.me/inter/font-files/Inter-roman.var.woff2?v=3.19',
-  
+
   'https://plausible.io/js/plausible.js',
-  
+
   '/icons/android-app-512.png',
   '/icons/iphone-app-180.png',
   '/icons/app-favicon.png',
@@ -46,7 +46,7 @@ const FILES_TO_CACHE = [
 ];
 
 self.addEventListener('install', (evt) => {
-  
+
   // precache static resources
   evt.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
