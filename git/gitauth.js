@@ -7,9 +7,15 @@ const clientId = '7ede3eed3185e59c042d';
 
 let githubToken, treeLoc;
 
+
+
 window.onload = () => {
 
   githubToken = getStorage('token');
+
+  //TBD@@:Temporary
+  githubToken = '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';
+  
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
   loginButton.addEventListener('click', () => {
@@ -23,18 +29,18 @@ window.onload = () => {
 
     // hide intro screen
     sidebar.classList.remove('intro');
-    
+
     // if on safari, refresh header color
     if (isSafari) {
-      
+
       document.querySelector('meta[name="theme-color"]').content = '#313744';
-      
+
       onNextFrame(() => {
-        
+
         document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
-        
+
       });
-      
+
     }
 
     // start loading
