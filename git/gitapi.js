@@ -74,6 +74,8 @@ let git = {
 
     }
 
+    console.log(githubToken);
+
     // get the query
     const resp = await axios.get(query, githubToken);
 
