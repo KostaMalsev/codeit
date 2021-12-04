@@ -10,8 +10,8 @@ let githubToken, treeLoc;
 
 window.onload = () => {
 
-  githubToken = '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';
-
+  githubToken = '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';
+  
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
   loginButton.addEventListener('click', () => {
