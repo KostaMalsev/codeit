@@ -10,7 +10,7 @@ let githubToken, treeLoc;
 
 window.onload = () => {
 
-  githubToken = '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';
+  githubToken = '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';
 
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
