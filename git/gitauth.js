@@ -8,13 +8,9 @@ const clientId = '7ede3eed3185e59c042d';
 let githubToken, treeLoc;
 
 
-
-githubToken = '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';
-
-
 window.onload = () => {
 
-  githubToken = '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';
+  githubToken = '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';
 
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
