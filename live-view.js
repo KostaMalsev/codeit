@@ -420,9 +420,9 @@ async function getScriptFile(scriptPath) {
   // if file is above current directory
   if (contents !== dirPath) {
 
-    if(fullScriptPath.includes('../../')){ //TBD@@
+    /*if(fullScriptPath.includes('../../')){ //TBD@@
       fullScriptPath = fullScriptPath.split('../../')[1];
-    }
+    }*/
 
     dirPath = fullScriptPath.split('/');
     dirPath.pop();
