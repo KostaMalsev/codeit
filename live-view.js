@@ -431,9 +431,7 @@ async function getScriptFile(scriptPath) {
     const upResp = await git.getItems([user, repo, dirPath]);
 
     const fileObj = upResp.filter(file => file.path == fullScriptPath);
-    
-    console.log(upResp, fileObj, dirPath, fullScriptPath);
-    
+        
     fileSha = fileObj[0].sha;
     //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
 
@@ -447,6 +445,8 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = downResp.filter(file => file.path == (contents.slice(1) + '/' + fullScriptPath));
 
+    console.log(downResp, fileObj, dirPath, fullScriptPath);
+    
     //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
     fileSha = fileObj[0].sha;
     
