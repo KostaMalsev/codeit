@@ -337,13 +337,13 @@ function renderLiveViewHTML(file) {
 
     } else {
 
-      let scriptContent = script.textContent;
+      let scriptContent = script.innerText;
 
       // if the script is a module
       if (script.type === 'module') {
 
         // get all imports in module
-        scriptContent = await getImports(script.textContent);
+        scriptContent = await getImports(script.innerText);
 
       }
 
@@ -432,8 +432,8 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = upResp.filter(file => file.path == fullScriptPath);
 
-    //fileSha = fileObj[0].sha;
-    fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
+    fileSha = fileObj[0].sha;
+    //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
 
   } else if (fullScriptPath.includes('/')) { // file is below
 
@@ -445,17 +445,17 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = downResp.filter(file => file.path == (contents.slice(1) + '/' + fullScriptPath));
 
-    fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
-
+    //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
+    fileSha = fileObj[0].sha;
+    
   } else { // file is in current directory
 
-    try{
-      const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.innerText == fullScriptPath);
-      console.log('getting sha from el tree, fileEl:',fileEl);
-
-      fileSha = getAttr(fileEl[0], 'sha');
-    }catch{
-      console.log('Unable to find the sha from DOM');
+    const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.innerText == fullScriptPath);
+    
+    fileSha = getAttr(fileEl[0], 'sha');
+    
+    console.log('getting sha from el tree, fileEl:', fileEl);
+    
   }
 
 
@@ -480,7 +480,6 @@ async function getImports(script) {
     const words = lines[i].trim().split(' ');
 
     if (importReg.exec(lines[i]) || importReg2.exec(lines[i]) ) {
-
 
       let importedScriptPath = words[words.length-1].slice(1, -2); // remove first char and two last chars
 
