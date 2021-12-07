@@ -337,13 +337,13 @@ function renderLiveViewHTML(file) {
 
     } else {
 
-      let scriptContent = script.innerText;
+      let scriptContent = script.textContent;
 
       // if the script is a module
       if (script.type === 'module') {
 
         // get all imports in module
-        scriptContent = await getImports(script.innerText);
+        scriptContent = await getImports(script.textContent);
 
       }
 
@@ -471,7 +471,7 @@ async function getImports(script) {
 
   let scriptContent = script;
 
-  const lines = script.split('\n');
+  const lines = script.replaceAll('\t', '').split('\n');
   const importReg = /[ /t/n]*import /i;
   const importReg2 = /[ /t/n]*from[ /t]*'/i;
 
