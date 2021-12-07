@@ -452,7 +452,7 @@ async function getScriptFile(scriptPath) {
     
   } else { // file is in current directory
 
-    const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.innerText == fullScriptPath);
+    const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.innerText.replace('\n', '') == fullScriptPath);
     
     fileSha = getAttr(fileEl[0], 'sha');
     
