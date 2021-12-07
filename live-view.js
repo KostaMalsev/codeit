@@ -432,7 +432,8 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = upResp.filter(file => file.path == fullScriptPath);
 
-    fileSha = fileObj[0].sha;
+    //fileSha = fileObj[0].sha;
+    fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
 
   } else if (fullScriptPath.includes('/')) { // file is below
 
@@ -444,14 +445,17 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = downResp.filter(file => file.path == (contents.slice(1) + '/' + fullScriptPath));
 
-    fileSha = fileObj[0].sha;
+    fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
 
   } else { // file is in current directory
 
-    const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.innerText == fullScriptPath);
+    try{
+      const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.innerText == fullScriptPath);
+      console.log('getting sha from el tree, fileEl:',fileEl);
 
-    fileSha = getAttr(fileEl[0], 'sha');
-
+      fileSha = getAttr(fileEl[0], 'sha');
+    }catch{
+      console.log('Unable to find the sha from DOM');
   }
 
 
