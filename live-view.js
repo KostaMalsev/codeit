@@ -419,14 +419,19 @@ async function getScriptFile(scriptPath) {
 
   // if file is above current directory
   if (contents !== dirPath) {
-
-    /*if(fullScriptPath.includes('../../')){ //TBD@@
-      fullScriptPath = fullScriptPath.split('../../')[1];
-    }*/
-
+    
+    console.log(dirPath, contents, fullScriptPath);
+    
     dirPath = fullScriptPath.split('/');
     dirPath.pop();
+    
+    // go two directories up
+    /*if (fullScriptPath.includes('../../')) {
+      dirPath.pop();
+    }*/
+    
     dirPath = '/' + dirPath.join('/');
+    
 
     const upResp = await git.getItems([user, repo, dirPath]);
 
@@ -445,8 +450,6 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = downResp.filter(file => file.path == (contents.slice(1) + '/' + fullScriptPath));
 
-    console.log(downResp, fileObj, dirPath, fullScriptPath);
-    
     //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
     fileSha = fileObj[0].sha;
     
