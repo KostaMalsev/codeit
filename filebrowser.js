@@ -240,7 +240,7 @@ function addHTMLItemListeners() {
         // if item is a folder
 
         // change location
-        treeLoc[2] += '/' + item.innerText.replace('\n', '');
+        treeLoc[2] += '/' + item.querySelector('.name').textContent;
         saveTreeLocLS(treeLoc);
 
         // render sidebar
@@ -364,7 +364,7 @@ async function loadFileInHTML(fileEl, fileSha) {
     const resp = await git.getFile(treeLoc, fileSha);
 
     // change selected file
-    changeSelectedFile(treeLoc.join(), fileSha, fileEl.innerText.replace('\n', ''), resp.content, getFileLang(fileEl.innerText),
+    changeSelectedFile(treeLoc.join(), fileSha, fileEl.querySelector('.name').textContent, resp.content, getFileLang(fileEl.innerText),
                        [0, 0], [0, 0], false);
 
     // stop loading
