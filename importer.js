@@ -31,7 +31,6 @@ async function getScriptFile(scriptPath) {
 
   }
 
-
   let fileSha;
 
   //   `../../../build/three.module.js`
@@ -69,7 +68,6 @@ async function getScriptFile(scriptPath) {
 
     const fileObj = downResp.filter(file => file.path == (contents.slice(1) + '/' + fullScriptPath));
 
-    //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
     fileSha = fileObj[0].sha;
     
   } else { // file is in current directory
@@ -82,11 +80,26 @@ async function getScriptFile(scriptPath) {
     
   }
 
-
   const resp = await git.getFile([user, repo], fileSha);
 
   return resp.content;
 
+}
+
+
+
+// Function caclulates the absolute path from the relative,
+// given the current path of the file
+// const [user, repo, contents] = treeLoc;
+// let dirPath = contents;
+function absolutePath(fileOriginPath,relativePath)
+{
+  //'../', '../', '../', 'ld/'
+  //console.log(('../../build/three.module.js'.match(new RegExp("../", "g")) || []).length);
+
+  let numLevelsUP = (relativePath.match(new RegExp("../", "g")) || []).length) - 1;
+  
+  
 }
 
 
