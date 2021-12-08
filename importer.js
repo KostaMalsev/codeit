@@ -96,8 +96,14 @@ function absolutePath(fileOriginPath,relativePath)
 {
   //'../', '../', '../', 'ld/'
   //console.log(('../../build/three.module.js'.match(new RegExp("../", "g")) || []).length);
+  //regex to identify level in pattern((\/[a-z]*\/)+)
+  //regex to identify half of a path : ((\/[a-zA-Z0-9_-]*\/)+)
 
   let numLevelsUP = (relativePath.match(new RegExp("../", "g")) || []).length) - 1;
+  //let pathUp = fileOriginPath.split('/').[numLevelUP];
+  
+  let downPath = relativePath.split('../'.repeat(2))[1];
+  
   
   
 }
