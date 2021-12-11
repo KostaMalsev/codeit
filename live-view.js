@@ -343,7 +343,8 @@ function renderLiveViewHTML(file) {
       if (script.type === 'module') {
 
         // get all imports in module
-        scriptContent = await getImports(script.textContent);
+        //scriptContent = await getImports(script.textContent);
+        scriptContent = await getImports2(script.textContent);
 
       }
 
@@ -380,6 +381,3 @@ function addScript(documentNode, code, src, type) {
   documentNode.head.appendChild(script);
 
 }
-
-
-

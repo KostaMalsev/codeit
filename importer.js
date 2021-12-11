@@ -1,6 +1,51 @@
 // Dependency importer
 
 
+// function fetches  file content from full path:
+async function getScriptFile2(scriptPath) {
+
+  // Map current tree location
+  const [user, repo, contents] = treeLoc;
+
+  //Set the full script path:
+  let fullScriptPath = scriptPath;
+
+  //Get list of the files in the current directory:
+  let scriptPathArr = scriptPath.split('/').slice();
+
+  scriptPathArr.pop();
+  console.log(scriptPath, 'getItems: ', scriptPathArr.join('/').replaceAll(',','').replace(repo,'') );
+  const resp = await git.getItems( [user, repo, scriptPathArr.join('/').replaceAll(',','').replace('/'+repo,'')] );
+
+  //Find the sha of the file:
+  let path = scriptPath.split('/');
+  let fileName = path[path.length-1];
+
+  const fileObj = resp.filter(file => file.name == fileName );
+
+  if (fileObj.length > 0) {
+
+    let fileSha = fileObj[0].sha;
+
+    // Fetch the file content:
+    const respF = await git.getFile([user, repo], fileSha);
+
+    return respF.content;
+
+  } else {
+
+    console.log('Could\'nt find script.');
+
+    return '';
+
+  }
+
+}
+
+
+
+
+
 // function fetches the relevant file content from relative path:
 async function getScriptFile(scriptPath) {
 
@@ -109,10 +154,8 @@ function absolutePath(fileOriginPath,relativePath)
   let pathUp = ( fileOriginPath.split('/').slice(0,numLevelUp ).join());
   pathUp = pathUp.replaceAll(',','/');
 
-  //let downPath = relativePath.split('../'.repeat(2))[1];
-
   let fullPath = pathUp + '/' + endPath;
-  console.log('endPath:',endPath,'\npathUp:',pathUp, ' totNumlevels',totNumLevels,' numLevelUp:',tmp,' numLevelUpFinal:',numLevelUp)
+  //console.log('endPath:',endPath,'\npathUp:',pathUp, ' totNumlevels',totNumLevels,' numLevelUp:',tmp,' numLevelUpFinal:',numLevelUp)
 
   return fullPath;
 
@@ -121,35 +164,61 @@ function absolutePath(fileOriginPath,relativePath)
 
 
 //TBD
-function getImports2(src,fileOriginPath)
-{
+// Function changes import statements from path to src content:
+async function getImports2(src) {
+
+  const [user, repo, contents] = treeLoc;
+
+  let scriptContent = src;
+
+
+  let fileOriginPath = contents + '/' + repo;
 
   let regImportParams = /(([/t/n/r ]*import \{[\t\n, a-zA-Z0-9_-]*\} from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
 
   /*3*/ /*import * from myFile.js */
   let regImportAll = /(([/t/n/r ]*import \* as [\t\n, a-zA-Z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
 
-  //TBD:
-  let src = ''; //the src file.js
-  let impFileList = src.match(regImportParams).join().match(/([../a-zA-Z]*\.js)/g);
+  // Geet the list of import scripts from given src:
+  let impFileList = src.match(regImportParams).join().match(/([../a-zA-Z0-9_]*\.js)/g);
+
+  //Get list with the second import format:
+  let impFileListF2 = src.match(regImportAll).join().match(/([../a-zA-Z0-9_]*\.js)/g);
+
+  //join the two results of two import format:
+  impFileList = impFileList.concat(impFileListF2);
 
   let fullPathList = [];
   let impSrcListContent = [];
 
-  impFileList.forEach( relativeFilePath => {
+  console.log(impFileList);
 
+
+  // For each import statetment:
+  await Promise.all(impFileList.map(async (relativeFilePath) => {
+
+    // Get the absolute path from the relative path:
     let absPath = absolutePath(fileOriginPath,relativeFilePath);
-    fullPathList.push(absPath);
+    //fullPathList.push(absPath);
 
-    let importedScript = await getScriptFile(importedScriptPath);
-    impSrcListContent.push(importedScript);
+    // Fetch the imported script:
+    let importedScript = await getScriptFile2(absPath);
 
-  });
+    importedScript = 'data:text/javascript;base64,' +
+                     encodeURIComponent(decodeUnicode(importedScript));
 
-  //TBD
-  //let fullContentSrc = src.replace(regImportParams).join().replace(/([../a-zA-Z]*\.js)/g);
+    if (importedScript.includes('\'')) {
 
+      console.log('not encoded properly');
 
+    }
+
+    // Replace the relative path with actual script content:
+    scriptContent = scriptContent.replaceAll(relativeFilePath, importedScript);
+
+  }));
+
+  return scriptContent;
 
 }
 
