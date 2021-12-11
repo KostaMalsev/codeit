@@ -15,6 +15,7 @@ PARTNER.(	.\lib\codeit-match-braces.js	/^		'(': ')',$/;"	p
 PARTNER.[	.\lib\codeit-match-braces.js	/^		'[': ']',$/;"	p
 PARTNER.{	.\lib\codeit-match-braces.js	/^		'{': '}',$/;"	p
 PLUGIN_NAME	.\lib\codeit-line-numbers.js	/^	var PLUGIN_NAME = 'line-numbers';$/;"	v
+absolutePath	.\importer.js	/^function absolutePath(fileOriginPath,relativePath)$/;"	f
 addBottomSwipeListener	.\live-view.js	/^function addBottomSwipeListener() {$/;"	f
 addBottomSwipeListener.drag	.\live-view.js	/^  function drag(e) {$/;"	f
 addBottomSwipeListener.dragEnd	.\live-view.js	/^  function dragEnd(e) {$/;"	f

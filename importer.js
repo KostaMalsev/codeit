@@ -37,24 +37,24 @@ async function getScriptFile(scriptPath) {
 
   // if file is above current directory
   if (contents !== dirPath) {
-    
+
     console.log(dirPath, contents, fullScriptPath);
-    
+
     dirPath = fullScriptPath.split('/');
     dirPath.pop();
-    
+
     // go two directories up
     /*if (fullScriptPath.includes('../../')) {
       dirPath.pop();
     }*/
-    
+
     dirPath = '/' + dirPath.join('/');
-    
+
 
     const upResp = await git.getItems([user, repo, dirPath]);
 
     const fileObj = upResp.filter(file => file.path == fullScriptPath);
-        
+
     fileSha = fileObj[0].sha;
     //fileSha = typeof( fileObj[0] == 'undefined' )? '' : fileObj[0].sha;
 
@@ -69,15 +69,15 @@ async function getScriptFile(scriptPath) {
     const fileObj = downResp.filter(file => file.path == (contents.slice(1) + '/' + fullScriptPath));
 
     fileSha = fileObj[0].sha;
-    
+
   } else { // file is in current directory
 
     const fileEl = fileWrapper.querySelectorAll('.item.file').filter(file => file.querySelector('.name').textContent == fullScriptPath);
-    
+
     fileSha = getAttr(fileEl[0], 'sha');
-    
+
     console.log('getting sha from el tree, fileEl:', fileEl);
-    
+
   }
 
   const resp = await git.getFile([user, repo], fileSha);
@@ -94,18 +94,63 @@ async function getScriptFile(scriptPath) {
 // let dirPath = contents;
 function absolutePath(fileOriginPath,relativePath)
 {
-  //'../', '../', '../', 'ld/'
-  //console.log(('../../build/three.module.js'.match(new RegExp("../", "g")) || []).length);
-  //regex to identify level in pattern((\/[a-z]*\/)+)
-  //regex to identify half of a path : ((\/[a-zA-Z0-9_-]*\/)+)
 
-  let numLevelsUP = (relativePath.match(new RegExp("../", "g")) || []).length) - 1;
-  //let pathUp = fileOriginPath.split('/').[numLevelUP];
-  
-  let downPath = relativePath.split('../'.repeat(2))[1];
-  
-  
-  
+  //Count level up directory:
+  let numLevelUp = (relativePath.match(/(..\/)/g) || []).length - 1;//(relativePath.match(new RegExp("../", "g")) || []).length;
+  let tmp = numLevelUp;
+  let totNumLevels = (relativePath.match(/(\/)/g) || []).length;
+  numLevelUp = totNumLevels - numLevelUp;
+
+  // Get the down path (what path to go, after reaching the up directory)
+  let endPath = relativePath.replaceAll("../".repeat(numLevelUp),'');
+  endPath = endPath.replaceAll('./','');
+
+  // Get the full path up (from root - is at '0')
+  let pathUp = ( fileOriginPath.split('/').slice(0,numLevelUp ).join());
+  pathUp = pathUp.replaceAll(',','/');
+
+  //let downPath = relativePath.split('../'.repeat(2))[1];
+
+  let fullPath = pathUp + '/' + endPath;
+  console.log('endPath:',endPath,'\npathUp:',pathUp, ' totNumlevels',totNumLevels,' numLevelUp:',tmp,' numLevelUpFinal:',numLevelUp)
+
+  return fullPath;
+
+}
+
+
+
+//TBD
+function getImports2(src,fileOriginPath)
+{
+
+  let regImportParams = /(([/t/n/r ]*import \{[\t\n, a-zA-Z0-9_-]*\} from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+
+  /*3*/ /*import * from myFile.js */
+  let regImportAll = /(([/t/n/r ]*import \* as [\t\n, a-zA-Z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+
+  //TBD:
+  let src = ''; //the src file.js
+  let impFileList = src.match(regImportParams).join().match(/([../a-zA-Z]*\.js)/g);
+
+  let fullPathList = [];
+  let impSrcListContent = [];
+
+  impFileList.forEach( relativeFilePath => {
+
+    let absPath = absolutePath(fileOriginPath,relativeFilePath);
+    fullPathList.push(absPath);
+
+    let importedScript = await getScriptFile(importedScriptPath);
+    impSrcListContent.push(importedScript);
+
+  });
+
+  //TBD
+  //let fullContentSrc = src.replace(regImportParams).join().replace(/([../a-zA-Z]*\.js)/g);
+
+
+
 }
 
 
