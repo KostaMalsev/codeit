@@ -211,7 +211,7 @@ async function getImports2(src) {
     // Fetch the imported script:
     let importedScript = await getScriptFile2(absPath);
     
-    importedScript = await getImports(importedScript);
+    importedScript = await getImports2(importedScript);
 
     importedScript = 'data:text/javascript;base64,' +
                      encodeURIComponent(decodeUnicode(importedScript));
