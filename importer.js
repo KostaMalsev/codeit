@@ -171,7 +171,7 @@ async function getImports2(src) {
 
   let scriptContent = src;
   
-  let impFileList = '';
+  let impFileList = [];
 
 
   let fileOriginPath = contents + '/' + repo;
@@ -193,7 +193,7 @@ async function getImports2(src) {
   if( resF2 )
     impFileList = impFileList.concat( resF2.join().match(/([../a-zA-Z0-9_]*\.js)/g) );
   
-  if(impFileList == '') return '';
+  if(impFileList.length == 0) return '';
 
   let fullPathList = [];
   let impSrcListContent = [];
