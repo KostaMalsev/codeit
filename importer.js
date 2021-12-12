@@ -209,12 +209,12 @@ async function getImports2(src) {
     //fullPathList.push(absPath);
 
     // Fetch the imported script:
-    let importedScript = await getScriptFile2(absPath);
+    let resContent = await getScriptFile2(absPath);
     
-    importedScript = await getImports2(decodeUnicode(importedScript));
+    let resSubContent = await getImports2(decodeUnicode(resContent));
 
-    importedScript = 'data:text/javascript;base64,' +
-                     encodeURIComponent(decodeUnicode(importedScript));
+    importedScript+ = 'data:text/javascript;base64,' +
+                     encodeURIComponent(decodeUnicode(resSubContent));
     
 
 
