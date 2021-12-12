@@ -162,7 +162,7 @@ function absolutePath(fileOriginPath,relativePath)
 }
 
 
-
+let importedScript = ''; //GLOBAL TBD@@
 
 // Function changes import statements from path to src content:
 async function getImports2(src) {
@@ -199,7 +199,7 @@ async function getImports2(src) {
   let impSrcListContent = [];
 
   console.log(impFileList);
-
+  
 
   // For each import statetment:
   await Promise.all(impFileList.map(async (relativeFilePath) => {
