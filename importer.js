@@ -213,7 +213,7 @@ async function getImports2(src) {
     
     let resSubContent = await getImports2(decodeUnicode(resContent));
 
-    importedScript+ = 'data:text/javascript;base64,' +
+    importedScript+= 'data:text/javascript;base64,' +
                      encodeURIComponent(decodeUnicode(resSubContent));
     
 
