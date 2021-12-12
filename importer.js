@@ -170,6 +170,8 @@ async function getImports2(src) {
   const [user, repo, contents] = treeLoc;
 
   let scriptContent = src;
+  
+  let impFileList = '';
 
 
   let fileOriginPath = contents + '/' + repo;
@@ -180,13 +182,18 @@ async function getImports2(src) {
   let regImportAll = /(([/t/n/r ]*import \* as [\t\n, a-zA-Z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
 
   // Geet the list of import scripts from given src:
-  let impFileList = src.match(regImportParams).join().match(/([../a-zA-Z0-9_]*\.js)/g);
+  let  resF1 = src.match(regImportParams);
+  if(resF1.length > 0 )
+    impFileList = resF1.join().match(/([../a-zA-Z0-9_]*\.js)/g);
+  
 
   //Get list with the second import format:
-  let impFileListF2 = src.match(regImportAll).join().match(/([../a-zA-Z0-9_]*\.js)/g);
-
-  //join the two results of two import format:
-  impFileList = impFileList.concat(impFileListF2);
+  let resF2 = src.match(regImportAll);
+  
+  if(resF2.length > 0)
+    impFileList.concat( resF2.join().match(/([../a-zA-Z0-9_]*\.js)/g) );
+  
+  if(impFileList == '') return '';
 
   let fullPathList = [];
   let impSrcListContent = [];
@@ -203,9 +210,13 @@ async function getImports2(src) {
 
     // Fetch the imported script:
     let importedScript = await getScriptFile2(absPath);
+    
+    importedScript = await getImports(importedScript);
 
     importedScript = 'data:text/javascript;base64,' +
                      encodeURIComponent(decodeUnicode(importedScript));
+    
+
 
     if (importedScript.includes('\'')) {
 
@@ -254,6 +265,8 @@ async function getImports(script) {
 
         // get all imports in script
         importedScript = await getImports(decodeUnicode(importedScript));
+        
+        
 
         // replace import statment with encoded script
         scriptContent = scriptContent.replace(importedScriptPath,
