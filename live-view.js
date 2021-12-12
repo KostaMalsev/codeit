@@ -344,6 +344,7 @@ function renderLiveViewHTML(file) {
 
         // get all imports in module
         //scriptContent = await getImports(script.textContent);
+        //change
         scriptContent = await getImports2(script.textContent);
 
       }
