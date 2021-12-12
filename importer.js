@@ -163,7 +163,7 @@ function absolutePath(fileOriginPath,relativePath)
 
 
 
-//TBD
+
 // Function changes import statements from path to src content:
 async function getImports2(src) {
 
@@ -183,14 +183,14 @@ async function getImports2(src) {
 
   // Geet the list of import scripts from given src:
   let  resF1 = src.match(regImportParams);
-  if(resF1.length > 0 )
+  if( resF1 )
     impFileList = resF1.join().match(/([../a-zA-Z0-9_]*\.js)/g);
   
 
   //Get list with the second import format:
   let resF2 = src.match(regImportAll);
   
-  if(resF2.length > 0)
+  if( resF2.length )
     impFileList.concat( resF2.join().match(/([../a-zA-Z0-9_]*\.js)/g) );
   
   if(impFileList == '') return '';
