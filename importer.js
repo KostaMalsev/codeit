@@ -191,7 +191,7 @@ async function getImports2(src) {
   let resF2 = src.match(regImportAll);
   
   if( resF2 )
-    impFileList.concat( resF2.join().match(/([../a-zA-Z0-9_]*\.js)/g) );
+    impFileList = impFileList.concat( resF2.join().match(/([../a-zA-Z0-9_]*\.js)/g) );
   
   if(impFileList == '') return '';
 
