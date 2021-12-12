@@ -190,7 +190,7 @@ async function getImports2(src) {
   //Get list with the second import format:
   let resF2 = src.match(regImportAll);
   
-  if( resF2.length )
+  if( resF2 )
     impFileList.concat( resF2.join().match(/([../a-zA-Z0-9_]*\.js)/g) );
   
   if(impFileList == '') return '';
