@@ -174,10 +174,15 @@ function absolutePath(fileOriginPath,relativePath)
 // Function changes import statements from path to src content:
 async function getImports2(scriptContent, fileOriginPath) {
 
+  //Import multiple params:
   let regImportParams = /(([/t/n/r ]*import \{[\t\n, a-zA-Z0-9_-]*\} from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+
+  //Import one param:
+  let regImportPar = /(([/t/r/n ]*import [A-Za-z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
 
   /*3*/ /*import * from myFile.js */
   let regImportAll = /(([/t/n/r ]*import \* as [\t\n, a-zA-Z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+
 
   // Geet the list of import scripts from given src:
   let impFileList = scriptContent.match(regImportParams);
@@ -189,6 +194,9 @@ async function getImports2(scriptContent, fileOriginPath) {
   //Get list with the second import format:
   let impFileListF2 = scriptContent.match(regImportAll);
 
+  let impFileListF3 = scriptContent.match(regImportPar);
+  if(impFileListF3) impFileListF3 = impFileListF3.join().match(/([../a-zA-Z0-9_]*\.js)/g);
+
   if (impFileListF2) {
     impFileListF2 = impFileListF2.join().match(/([../a-zA-Z0-9_]*\.js)/g);
   }
@@ -199,12 +207,18 @@ async function getImports2(scriptContent, fileOriginPath) {
   }
 
   // if file contains no imports
-  if (!impFileList && !impFileListF2) {
+  if (!impFileList && !impFileListF2 && !impFileListF3) {
 
     // return unmodifed script file
     return scriptContent;
-
   }
+
+  if(!impFileList){
+    impFileList = impFileListF2;
+  }
+
+  //Add the third import option if availible:
+  impFileList = impFileListF3 ? impFileList.concat(impFileListF3) : impFileList;
 
   let fullPathList = [];
   let impSrcListContent = [];
