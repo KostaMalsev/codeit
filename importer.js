@@ -27,7 +27,7 @@ async function getScriptFile2(scriptPath) {
 
     let fileSha = fileObj[0].sha;
 
-    // Fetch the file content:
+    // Fetch the file content: BAR FETCH
     const respF = await git.getFile([user, repo], fileSha);
 
     return respF.content;
@@ -175,30 +175,30 @@ function absolutePath(fileOriginPath,relativePath)
 async function getImports2(scriptContent, fileOriginPath) {
 
   //Import multiple params:
-  let regImportParams = /(([/t/n/r ]*import \{[\t\n, a-zA-Z0-9_-]*\} from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+  let regImportParams = /(([\t\n\r ]*import \{[\t\n, a-zA-Z0-9_-]*\} from \'[\.\/a-zA-Z0-9_\-]*\.js\'\;))/g;
 
   //Import one param:
-  let regImportPar = /(([/t/r/n ]*import [A-Za-z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+  let regImportPar = /(([\t\r\n ]*import [A-Za-z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
 
   /*3*/ /*import * from myFile.js */
-  let regImportAll = /(([/t/n/r ]*import \* as [\t\n, a-zA-Z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
+  let regImportAll = /(([\t\n\r ]*import \* as [\t\n, a-zA-Z0-9_-]* from \'[\.\/a-zA-Z0-9_-]*\.js\'\;))/g;
 
 
   // Geet the list of import scripts from given src:
   let impFileList = scriptContent.match(regImportParams);
-
-  if (impFileList) {
-    impFileList = impFileList.join().match(/([../a-zA-Z0-9_]*\.js)/g);
-  }
+  if (impFileList) impFileList = impFileList.join().match(/([../a-zA-Z0-9_\-]*\.js)/g);
 
   //Get list with the second import format:
   let impFileListF2 = scriptContent.match(regImportAll);
+  if (impFileListF2) impFileListF2 = impFileListF2.join().match(/([../a-zA-Z0-9_\-]*\.js)/g);
 
   let impFileListF3 = scriptContent.match(regImportPar);
-  if(impFileListF3) impFileListF3 = impFileListF3.join().match(/([../a-zA-Z0-9_]*\.js)/g);
+  if(impFileListF3) impFileListF3 = impFileListF3.join().match(/([../a-zA-Z0-9_\-]*\.js)/g);
 
-  if (impFileListF2) {
-    impFileListF2 = impFileListF2.join().match(/([../a-zA-Z0-9_]*\.js)/g);
+  // if file contains no imports
+  if (!impFileList && !impFileListF2 && !impFileListF3) {
+    // return unmodifed script file
+    return scriptContent;
   }
 
   //join the two results of two import format:
@@ -206,19 +206,19 @@ async function getImports2(scriptContent, fileOriginPath) {
     impFileList = impFileList.concat(impFileListF2);
   }
 
-  // if file contains no imports
-  if (!impFileList && !impFileListF2 && !impFileListF3) {
 
-    // return unmodifed script file
-    return scriptContent;
-  }
-
-  if(!impFileList){
+  if(!impFileList ){
     impFileList = impFileListF2;
   }
 
-  //Add the third import option if availible:
-  impFileList = impFileListF3 ? impFileList.concat(impFileListF3) : impFileList;
+  if(!impFileList && impFileListF3){
+    impFileList = impFileListF3;
+  }else{
+    //Add the third import option if availible:
+    impFileList = impFileListF3 ? impFileList.concat(impFileListF3) : impFileList;
+  }
+
+
 
   let fullPathList = [];
   let impSrcListContent = [];
@@ -277,8 +277,8 @@ async function getImports(script) {
   let scriptContent = script;
 
   const lines = script.replaceAll('\t', '').split('\n');
-  const importReg = /[ /t/n]*import /i;
-  const importReg2 = /[ /t/n]*from[ /t]*'/i;
+  const importReg = /[ \t\n]*import /i;
+  const importReg2 = /[ \t\n]*from[ \t]*'/i;
 
   for (let i = 0; i < lines.length; i++) {
 
