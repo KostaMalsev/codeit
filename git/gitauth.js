@@ -15,6 +15,9 @@ window.onload = async () => {
     gitToken = '';
   }
 
+  //TBD@@
+  gitToken = decodeUnicode(codeURIComponent('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
+
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
   loggedUser = JSON.parse(getStorage('loggedUser'));
