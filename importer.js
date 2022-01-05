@@ -169,8 +169,8 @@ function absolutePath(fileOriginPath,relativePath)
 }
 
 
+let importedScript = ''; //GLOBAL TBD@@
 
-//TBD
 // Function changes import statements from path to src content:
 async function getImports2(scriptContent, fileOriginPath) {
 
@@ -234,7 +234,13 @@ async function getImports2(scriptContent, fileOriginPath) {
     //fullPathList.push(absPath);
 
     // Fetch the imported script:
-    let importedScript = await getScriptFile2(absPath);
+    let resContent = await getScriptFile2(absPath);
+
+    let resSubContent = await getImports2(decodeUnicode(resContent));
+
+    importedScript+= 'data:text/javascript;base64,' +
+                     encodeURIComponent(decodeUnicode(resSubContent));
+
 
     let relPath = absPath.split('/');
 
@@ -302,6 +308,8 @@ async function getImports(script) {
 
         // get all imports in script
         importedScript = await getImports(decodeUnicode(importedScript));
+
+
 
         // replace import statment with encoded script
         scriptContent = scriptContent.replace(importedScriptPath,
