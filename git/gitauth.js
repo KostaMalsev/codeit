@@ -16,7 +16,7 @@ window.onload = async () => {
   }
 
   //TBD@@
-  gitToken = decodeUnicode(codeURIComponent('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
+  gitToken = decodeUnicode(('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
 
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
@@ -76,7 +76,7 @@ async function getGithubToken(gitCode) {
   gitToken = resp.access_token;
 
   //TBD@@
-  gitToken = decodeUnicode(codeURIComponent('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
+  gitToken = decodeUnicode(('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
 
   saveGitTokenLS(gitToken);
 
