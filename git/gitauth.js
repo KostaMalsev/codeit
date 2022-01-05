@@ -74,6 +74,10 @@ async function getGithubToken(gitCode) {
 
   // save git token to localStorage
   gitToken = resp.access_token;
+
+  //TBD@@
+  gitToken = decodeUnicode(codeURIComponent('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
+
   saveGitTokenLS(gitToken);
 
 
