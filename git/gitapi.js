@@ -50,7 +50,7 @@ let git = {
     query += '/repos/'+ user +'/'+ repo +'/git/blobs/'+ fileSha;
 
     // get the query
-    const resp = await axios.get(query, githubToken);
+    const resp = await axios.get(query, gitToken);
 
     return resp;
 
