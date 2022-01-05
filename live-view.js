@@ -1,4 +1,129 @@
 
+// setup live view
+async function setupLiveView() {
+
+  const url = new URL(window.location.href);
+  const urlQuery = url.searchParams.get('q');
+
+  if (urlQuery) {
+
+    window.history.pushState(window.location.origin, 'Codeit', window.location.origin + '/full');
+
+    if (isMobile) {
+
+      toggleSidebar(false);
+      saveSidebarStateLS();
+
+    } else {
+
+      toggleSidebar(true);
+      saveSidebarStateLS();
+
+    }
+
+    treeLoc = urlQuery.split('+')[0].split(',');
+    saveTreeLocLS(treeLoc);
+
+    const fileName = urlQuery.split('+')[1].split(',')[0];
+    const fileSha = urlQuery.split('+')[1].split(',')[1];
+
+    // change selected file
+    changeSelectedFile(treeLoc.join(), fileSha, fileName, '\n\r', getFileLang(fileName),
+                       [0, 0], [0, 0], false);
+
+    // if on mobile device
+    if (isMobile) {
+
+      // update bottom float
+      updateFloat();
+
+      // don't transition bottom float
+      bottomWrapper.classList.add('notransition');
+
+      // expand bottom float
+      bottomWrapper.classList.add('expanded');
+
+      // fix bottom float on safari
+      if (isSafari) bottomWrapper.classList.add('fromtop');
+
+      // restore transition on next frame
+      onNextFrame(() => {
+        bottomWrapper.classList.remove('notransition');
+      });
+
+    } else {
+
+      // don't transition live view
+      liveView.classList.add('notransition');
+
+      // show live view
+      liveView.classList.add('visible');
+
+      // restore transition on next frame
+      onNextFrame(() => {
+        liveView.classList.remove('notransition');
+      });
+
+    }
+
+    // if file is not modified; fetch from Git
+    if (!modifiedFiles[fileSha]) {
+
+      // start loading
+      startLoading();
+
+      // get file from git
+      const resp = await git.getFile(treeLoc, fileName);
+
+      // change selected file
+      changeSelectedFile(treeLoc.join(), fileSha, fileName, resp.content, getFileLang(fileName),
+                         [0, 0], [0, 0], false);
+
+      // stop loading
+      stopLoading();
+
+    } else { // else, load file from modifiedFiles object
+
+      const modFile = modifiedFiles[fileSha];
+
+      changeSelectedFile(modFile.dir, modFile.sha, modFile.name, modFile.content, modFile.lang,
+                         modFile.caretPos, modFile.scrollPos, false);
+
+    }
+
+    // open live view
+    toggleLiveView(selectedFile);
+
+    // show file content in codeit
+    cd.textContent = decodeUnicode(selectedFile.content);
+
+    // change codeit lang
+    cd.lang = selectedFile.lang;
+
+    // set caret pos in codeit
+    cd.setSelection(selectedFile.caretPos[0], selectedFile.caretPos[1]);
+
+    // set scroll pos in codeit
+    cd.scrollTo(selectedFile.scrollPos[0], selectedFile.scrollPos[1]);
+
+    // clear codeit history
+    cd.history = [];
+
+    // update line numbers
+    updateLineNumbersHTML();
+
+    // if on desktop
+    if (!isMobile) {
+
+      // check codeit scrollbar
+      checkScrollbarArrow();
+
+    }
+
+  }
+
+}
+
 // open live view when swiped up on bottom float
 function addBottomSwipeListener() {
 
@@ -49,8 +174,34 @@ function addBottomSwipeListener() {
       // if did not click on share button
       if (!clickedOnShare) {
 
-        // retract bottom float
-        bottomWrapper.classList.remove('expanded');
+        e.preventDefault();
+        e.stopPropagation();
+
+        // fix bottom float on safari
+        if (isSafari) {
+
+          bottomWrapper.classList.remove('fromtop');
+          bottomWrapper.classList.add('notransition');
+
+          onNextFrame(() => {
+
+            bottomWrapper.classList.remove('notransition');
+
+            onNextFrame(() => {
+
+              // retract bottom float
+              bottomWrapper.classList.remove('expanded');
+
+            });
+
+          });
+
+        } else {
+
+          // retract bottom float
+          bottomWrapper.classList.remove('expanded');
+
+        }
 
         toggleLiveView(selectedFile);
 
@@ -61,13 +212,28 @@ function addBottomSwipeListener() {
 
         const shareData = {
           title: 'Share live view',
-          content: window.location.origin
+          text: 'Run ' + treeLoc[0] + '/' + treeLoc[1] + ' with Codeit: ' +
+                window.location.origin + '/full?q=' + encodeURIComponent(treeLoc.join(',') + '+' + selectedFile.name + ',' + selectedFile.sha) + '&l=true'
         }
 
-        try {
-          navigator.share(shareData);
-        } catch(e) {
-          console.info('[Share API] Couldn\'t share.');
+        if (isMobile) {
+
+          try {
+
+            navigator.share(shareData);
+
+          } catch(e) {
+
+            copy(shareData.text);
+            alert('Copied link to clipboard.');
+
+          }
+
+        } else {
+
+          copy(shareData.text);
+          alert('Copied link to clipboard.');
+
         }
 
       }
@@ -112,8 +278,22 @@ function addBottomSwipeListener() {
         // if swiped up and bottom float isn't expanded
         if (swiped && !bottomWrapper.classList.contains('expanded')) {
 
+          swiped = false;
+
           // expand bottom float
           bottomWrapper.classList.add('expanded');
+
+          // fix bottom float on safari
+          // when finished transitioning
+          if (isSafari) {
+
+            window.setTimeout(() => {
+
+              bottomWrapper.classList.add('fromtop');
+
+            }, 400);
+
+          }
 
           toggleLiveView(selectedFile);
 
@@ -124,16 +304,35 @@ function addBottomSwipeListener() {
         // if swiped down and bottom float is expanded
         if (swiped && bottomWrapper.classList.contains('expanded')) {
 
-          // retract bottom float
-          bottomWrapper.classList.remove('expanded');
+          swiped = false;
+
+          // fix bottom float on safari
+          if (isSafari) {
+
+            bottomWrapper.classList.remove('fromtop');
+            bottomWrapper.classList.add('notransition');
+
+            onNextFrame(() => {
+
+              bottomWrapper.classList.remove('notransition');
+
+              onNextFrame(() => {
+
+                // retract bottom float
+                bottomWrapper.classList.remove('expanded');
+
+              });
+
+            });
+
+          } else {
+
+            // retract bottom float
+            bottomWrapper.classList.remove('expanded');
+
+          }
 
           toggleLiveView(selectedFile);
-
-        } else if (swiped && liveView.innerHTML === '') {
-
-          // if swiped down and bottom float isn't expanded
-          // hide bottom float
-          bottomWrapper.classList.add('hidden');
 
         }
 
@@ -147,25 +346,48 @@ function addBottomSwipeListener() {
 
 }
 
-if (isMobile) {
+function updateLiveViewArrow() {
 
-  addBottomSwipeListener();
+  if (selectedFile.lang == 'html' || selectedFile.lang == 'svg') {
+
+    liveToggle.classList.add('visible');
+
+  } else {
+
+    liveToggle.classList.remove('visible');
+
+  }
 
 }
 
 
+if (isMobile) {
 
-document.addEventListener('keydown', handleMetaP);
+  addBottomSwipeListener();
 
-function handleMetaP(e) {
+} else {
 
-  // detect ctrl/cmd+P
-  if ((e.key === 'p' || e.keyCode === 80) && isKeyEventMeta(e)) {
+  liveToggle.addEventListener('click', () => {
 
-    e.preventDefault();
-
+    // toggle live view
     liveView.classList.toggle('visible');
     toggleLiveView(selectedFile);
+
+  });
+
+  document.addEventListener('keydown', handleMetaP);
+
+  function handleMetaP(e) {
+
+    // detect ctrl/cmd+P
+    if ((e.key === 'p' || e.keyCode === 80) && isKeyEventMeta(e)) {
+
+      e.preventDefault();
+
+      liveView.classList.toggle('visible');
+      toggleLiveView(selectedFile);
+
+    }
 
   }
 
@@ -189,7 +411,7 @@ function toggleLiveView(file) {
       document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
     }
 
-    if (file.lang == 'html') {
+    if (file.lang == 'html' || file.lang == 'svg') {
 
       window.setTimeout(() => {
 
@@ -240,7 +462,7 @@ function toggleLiveView(file) {
 // render live view for HTML files
 function renderLiveViewHTML(file) {
 
-  liveView.innerHTML = '<iframe class="live-frame" allow="camera; gyroscope; microphone; autoplay; clipboard-write; encrypted-media; picture-in-picture; accelerometer" frameborder="0"></iframe>';
+  liveView.innerHTML = '<iframe name="' + file.name + '" title="' + file.name + '" class="live-frame" allow="accelerometer; autoplay; camera; ch-device-memory; ch-downlink; ch-dpr; ch-ect; ch-prefers-color-scheme; ch-rtt; ch-ua; ch-ua-arch; ch-ua-bitness; ch-ua-full-version; ch-ua-mobile; ch-ua-model; ch-ua-platform; ch-ua-platform-version; ch-viewport-width; ch-width; clipboard-read; clipboard-write; cross-origin-isolated; display-capture; document-domain; encrypted-media; fullscreen; geolocation; gyroscope; hid; idle-detection; magnetometer; microphone; midi; otp-credentials; payment; picture-in-picture; publickey-credentials-get; screen-wake-lock; serial; sync-xhr; usb; xr-spatial-tracking" allowfullscreen="true" allowpaymentrequest="true" loading="lazy" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-same-origin allow-scripts allow-top-navigation-by-user-activation" scrolling="yes" frameborder="0"></iframe>';
 
   const frame = liveView.querySelector('.live-frame');
   const frameDocument = frame.contentDocument;
@@ -357,6 +579,145 @@ function renderLiveViewHTML(file) {
 
   })
 
+  // fetch images
+  frameDocument.querySelectorAll('img').forEach(async (image) => {
+
+    const linkHref = new URL(image.src);
+    const fileName = linkHref.pathname.slice(1);
+
+    if (linkHref.origin == window.location.origin) {
+
+      // if image is in current directory
+      if (!(linkHref.pathname.slice(1).includes('/'))) {
+
+        // fetch file element for its SHA
+        let fileEl = Array.from(fileWrapper.querySelectorAll('.item.file'))
+                     .filter(file => file.querySelector('.name').textContent == linkHref.pathname.slice(1));
+
+        fileEl = (fileEl.length > 0) ? fileEl[0] : null;
+
+        // if image file exists
+        if (fileEl !== null) {
+
+          // fetch image
+
+          let fileName = linkHref.pathname.split('/');
+          fileName = fileName[fileName.length-1];
+
+          // get MIME type (https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types)
+          let mimeType = 'image/' + fileName.split('.')[1];
+
+          if (mimeType.endsWith('svg')) mimeType = 'image/svg+xml';
+
+          // get file as blob with SHA (up to 100MB)
+          const resp = await git.getBlob(selectedFile.dir.split(','), getAttr(fileEl, 'sha'));
+
+          image.src = 'data:' + mimeType + ';base64,' + resp.content;
+
+        }
+
+      } else if (!(linkHref.pathname.slice(1).includes('./'))) { // if image is below current directory
+
+        // fetch image
+
+        let fileName = linkHref.pathname.split('/');
+        fileName = fileName[fileName.length-1];
+
+        // get MIME type
+        let mimeType = 'image/' + fileName.split('.')[1];
+
+        if (mimeType.endsWith('svg')) mimeType = 'image/svg+xml';
+
+        const resp = await git.getFile(selectedFile.dir.split(','), fileName);
+
+        image.src = 'data:' + mimeType + ';base64,' + resp.content;
+
+      }
+
+    }
+
+  })
+
+  // fetch videos
+  frameDocument.querySelectorAll('video').forEach(async (video) => {
+
+    const linkHref = new URL(video.src);
+    const fileName = linkHref.pathname.slice(1);
+
+    if (linkHref.origin == window.location.origin) {
+
+      // if video is in current directory
+      if (!(linkHref.pathname.slice(1).includes('/'))) {
+
+        // fetch file element for its SHA
+        let fileEl = Array.from(fileWrapper.querySelectorAll('.item.file'))
+                     .filter(file => file.querySelector('.name').textContent == linkHref.pathname.slice(1));
+
+        fileEl = (fileEl.length > 0) ? fileEl[0] : null;
+
+        // if video file exists
+        if (fileEl !== null) {
+
+          // fetch video
+
+          let fileName = linkHref.pathname.split('/');
+          fileName = fileName[fileName.length-1];
+
+          // get MIME type
+          let mimeType = 'video/' + fileName.split('.')[1];
+
+          if (mimeType.endsWith('avi')) mimeType = 'video/x-msvideo';
+          if (mimeType.endsWith('ogv')) mimeType = 'video/ogg';
+          if (mimeType.endsWith('ts')) mimeType = 'video/mp2t';
+
+          // get file as blob with SHA (up to 100MB)
+          const resp = await git.getBlob(selectedFile.dir.split(','), getAttr(fileEl, 'sha'));
+
+          video.src = 'data:' + mimeType + ';base64,' + resp.content;
+
+        }
+
+      }
+
+    }
+
+  })
+
+  // fetch audio
+  frameDocument.querySelectorAll('audio').forEach(async (audio) => {
+
+    const linkHref = new URL(audio.src);
+    const fileName = linkHref.pathname.slice(1);
+
+    if (linkHref.origin == window.location.origin) {
+
+      // if audio file is in current directory
+      if (!(linkHref.pathname.slice(1).includes('/'))) {
+
+        // fetch file element for its SHA
+        let fileEl = Array.from(fileWrapper.querySelectorAll('.item.file'))
+                     .filter(file => file.querySelector('.name').textContent == linkHref.pathname.slice(1));
+
+        fileEl = (fileEl.length > 0) ? fileEl[0] : null;
+
+        // if audio file exists
+        if (fileEl !== null) {
+
+          // fetch audio
+
+          // get file as blob with SHA (up to 100MB)
+          const resp = await git.getBlob(selectedFile.dir.split(','), getAttr(fileEl, 'sha'));
+
+          audio.src = 'data:audio/mpeg;base64,' + resp.content;
+
+        }
+
+      }
+
+    }
+
+  })
+
 }
 
 
@@ -380,4 +741,11 @@ function addScript(documentNode, code, src, type) {
 
   documentNode.head.appendChild(script);
 
+}
+
+
+async function asyncForEach(array, callback) {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
 }

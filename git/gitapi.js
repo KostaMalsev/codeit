@@ -24,6 +24,22 @@ const beforeUnloadListener = (event) => {
 
 let git = {
 
+  // get blob
+  'getBlob': async (treeLoc, sha) => {
+
+    // map tree location
+    let query = 'https://api.github.com';
+    const [user, repo, contents] = treeLoc;
+
+    query += '/repos/'+ user +'/'+ repo +'/git/blobs/'+ sha;
+
+    // get the query
+    const resp = await axios.get(query, gitToken);
+
+    return resp;
+
+  },
+
   // get file
   'getFile': async (treeLoc, fileSha) => {
 
@@ -50,7 +66,7 @@ let git = {
     query += '/repos/'+ user +'/'+ repo +'/contents/'+ contents +'/'+ fileName;
 
     // get the query
-    const resp = await axios.get(query, githubToken);
+    const resp = await axios.get(query, gitToken);
 
     return resp;
 
@@ -75,7 +91,7 @@ let git = {
     }
 
     // get the query
-    const resp = await axios.get(query, githubToken);
+    const resp = await axios.get(query, gitToken);
 
     return resp;
 
@@ -115,7 +131,7 @@ let git = {
     changePushingState(true);
 
     // put the query
-    const resp = await axios.put(query, githubToken, commitData);
+    const resp = await axios.put(query, gitToken, commitData);
 
     // change pushing state
     changePushingState(false);
@@ -137,7 +153,7 @@ let git = {
     };
 
     // post the query
-    const resp = await axios.post(query, githubToken, repoData);
+    const resp = await axios.post(query, gitToken, repoData);
 
     return resp.full_name;
 
@@ -153,7 +169,7 @@ let git = {
                   '/' + user + '/' + repo + '/forks';
 
     // post the query
-    const resp = await axios.post(query, githubToken);
+    const resp = await axios.post(query, gitToken);
 
     return resp.full_name;
 
@@ -170,7 +186,7 @@ let git = {
                   '/collaborators/' + username;
 
     // put the query
-    const resp = await axios.put(query, githubToken);
+    const resp = await axios.put(query, gitToken);
 
     return resp.node_id;
 
@@ -187,7 +203,7 @@ let git = {
                   '/collaborators/' + username;
 
     // put the query
-    const resp = await axios.put(query, githubToken);
+    const resp = await axios.put(query, gitToken);
 
     return resp.node_id;
 

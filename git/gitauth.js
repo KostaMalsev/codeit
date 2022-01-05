@@ -2,25 +2,31 @@
   github
 */
 
-// Github login
+// git login
 const clientId = '7ede3eed3185e59c042d';
 
-let githubToken, treeLoc;
+let gitToken, treeLoc, authUser;
 
+window.onload = async () => {
 
-window.onload = () => {
+  gitToken = getStorage('gitToken') ?? '';
 
-  githubToken = decodeUnicode(decodeURIComponent('Z2hwX0k1T0poVTVqdFUzQzJxZG9XaVVKNFV1UEJTVU5BOTBUVkFJcA=='));
+  if (gitToken == 'undefined') {
+    gitToken = '';
+  }
 
   treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
 
+  loggedUser = JSON.parse(getStorage('loggedUser'));
+
+
   loginButton.addEventListener('click', () => {
 
-    window.open('https://github.com/login/oauth/authorize?client_id='+ clientId +'&scope=repo,write:org', 'Login with Github', 'height=575,width=575');
+    window.open('https://github.com/login/oauth/authorize?client_id='+ clientId +'&scope=repo,user,write:org', 'Login with Github', 'height=575,width=575');
 
   })
 
-  // if redirected from Github auth
+  // if redirected from git auth
   window.addEventListener('message', (event) => {
 
     // hide intro screen
@@ -42,29 +48,38 @@ window.onload = () => {
     // start loading
     startLoading();
 
-    const githubCode = event.data;
+    const gitCode = event.data;
 
-    // get Github token
-    getGithubToken(githubCode);
+    // get git token from Github
+    getGithubToken(gitCode);
 
   })
+
 
   loadLS();
 
 }
 
-async function getGithubToken(githubCode) {
+async function getGithubToken(gitCode) {
 
-  // post through CORS proxy to Github with clientId, clientSecret and code
-  var resp = await axios.post('https://scepter-cors2.herokuapp.com/' +
-                              'https://github.com/login/oauth/access_token?' +
-                              'client_id=' + clientId +
-                              '&client_secret=c1934d5aab1c957800ea8e84ce6a24dda6d68f45' +
-                              '&code=' + githubCode);
+  // post through CORS proxy to git with clientId, clientSecret and code
+  const resp = await axios.post('https://scepter-cors2.herokuapp.com/' +
+                               'https://github.com/login/oauth/access_token?' +
+                               'client_id=' + clientId +
+                               '&client_secret=c1934d5aab1c957800ea8e84ce6a24dda6d68f45' +
+                               '&code=' + gitCode);
 
-  // save token to localStorage
-  githubToken = resp.access_token;
-  saveAuthTokenLS(githubToken);
+  // save git token to localStorage
+  gitToken = resp.access_token;
+  saveGitTokenLS(gitToken);
+
+
+  // get logged user
+  loggedUser = await axios.get('https://api.github.com/user', gitToken);
+
+  // save logged user in local storage
+  setStorage('loggedUser', JSON.stringify(loggedUser));
+
 
   // render sidebar
   renderSidebarHTML();

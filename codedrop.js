@@ -20,15 +20,6 @@ function getFileLang(src) {
 
 }
 
-function splitFileName(src) {
-  
-  src = src.replaceAll('\n', '');
-
-  const extension = (/\.(\w+)$/.exec(src) || [, 'none'])[1];
-  return [src.replace(('.' + extension), ''), '.' + extension];
-  
-}
-
 
 function processFile(file) {
 
@@ -60,8 +51,8 @@ cd.on('drop', (ev) => {
   // prevent default behavior (prevent file from being opened)
   ev.preventDefault();
 
-  // if not logged into Github
-  if (githubToken == null) {
+  // if not logged into git
+  if (gitToken == '') {
 
     // remove drop indication
     document.body.classList.remove('focus');
@@ -101,8 +92,8 @@ cd.on('dragover', (ev) => {
   // prevent default behavior (prevent file from being opened)
   ev.preventDefault();
 
-  // if not logged into Github
-  if (githubToken == null) {
+  // if not logged into git
+  if (gitToken == '') {
 
     // show drop indication
     document.body.classList.add('focus');
@@ -113,8 +104,8 @@ cd.on('dragover', (ev) => {
 
 cd.on('dragleave', (ev) => {
 
-  // if not logged into Github
-  if (githubToken == null) {
+  // if not logged into git
+  if (gitToken == '') {
 
     // remove drop indication
     document.body.classList.remove('focus');
@@ -127,8 +118,8 @@ if ('launchQueue' in window) {
 
   launchQueue.setConsumer(async (launchParams) => {
 
-    // if not logged into Github
-    if (githubToken == null) {
+    // if not logged into git
+    if (gitToken == '') {
 
       // nothing to do when the queue is empty
       if (!launchParams.files.length) {

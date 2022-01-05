@@ -5,7 +5,11 @@
 // show bookmark on hover
 sidebarToggle.addEventListener('mouseover', () => {
 
-  sidebarToggle.classList.add('visible');
+  if (!body.classList.contains('expanded')) {
+
+    sidebarToggle.classList.add('visible');
+
+  }
 
 })
 
@@ -20,7 +24,7 @@ sidebarToggle.addEventListener('click', () => {
 
 
 // render sidebar
-// call this function when signed in to github
+// call this function when signed in to git
 // to render sidebar
 async function renderSidebarHTML() {
 
@@ -32,13 +36,74 @@ async function renderSidebarHTML() {
   // hide search screen
   header.classList.remove('searching');
 
+
   // map tree location
   const [user, repo, contents] = treeLoc;
 
-  // get items in current tree from git
-  const resp = await git.getItems(treeLoc);
 
-  let modifiedFilesResp = JSON.parse(JSON.stringify(modifiedFiles));
+  // if not logged into git
+  // and navigated to Repositories page
+  if (gitToken == '' && repo == '') {
+
+    // stop loading
+    stopLoading();
+
+    // show login screen
+    sidebar.classList.add('intro');
+
+    return;
+
+  }
+
+
+  let resp;
+
+  // get items in current tree from git
+  try {
+
+    resp = await git.getItems(treeLoc);
+
+  } catch(e) {
+
+    // if failed to get items,
+    // delete auth token and show login screen
+
+    // stop loading
+    stopLoading();
+
+    // log out from git
+    logOutFromGitLS();
+
+    sidebar.classList.add('intro');
+
+    return;
+
+  }
+
+  if (resp.message == 'Bad credentials') {
+
+    // if failed to get items,
+    // delete auth token and show login screen
+
+    // stop loading
+    stopLoading();
+
+    // log out from git
+    logOutFromGitLS();
+
+    sidebar.classList.add('intro');
+
+    return;
+
+  }
+
+
+  // create temporary modified files array
+  let modifiedFilesTemp = Object.values(JSON.parse(JSON.stringify(modifiedFiles)));
+
+  // get all modified files in directory
+  modifiedFilesTemp = modifiedFilesTemp.filter(modFile => modFile.dir == treeLoc.join());
+
 
   // save rendered HTML
   let out = '';
@@ -48,24 +113,40 @@ async function renderSidebarHTML() {
 
     // show title
 
-    sidebarLogo.classList.remove('overflow');
+    let titleAnimation;
 
     if (contents != '') {
 
-      // show path
-      sidebarLogo.innerText = repo + contents;
+      // if repo is owned by logged user
+      if (loggedUser && user == loggedUser.login) {
 
-      // if path is too long, overflow
-      if (sidebarLogo.innerText.length > 25) {
+        // show repo name and path
+        sidebarLogo.innerText = repo + contents;
 
-        sidebarLogo.classList.add('overflow');
+      } else {
+
+        // show username, repo name and path
+        sidebarLogo.innerText = user + '/' + repo + contents;
 
       }
 
+      // animate title
+      if (sidebarTitle.children[0].scrollLeft > 0) titleAnimation = 'smooth';
+
     } else if (repo != '') {
 
-      // show repo name
-      sidebarLogo.innerText = repo;
+      // if repo is owned by logged user
+      if (loggedUser && user == loggedUser.login) {
+
+        // show repo name
+        sidebarLogo.innerText = repo;
+
+      } else {
+
+        // show username and repo name
+        sidebarLogo.innerText = user + '/' + repo;
+
+      }
 
     } else {
 
@@ -73,6 +154,23 @@ async function renderSidebarHTML() {
       sidebarLogo.innerText = 'Repositories';
 
     }
+
+    // scroll to end of title
+
+    if (!titleAnimation) {
+
+      sidebarTitle.classList.add('notransition');
+
+      window.setTimeout(() => {
+        sidebarTitle.classList.remove('notransition');
+      }, 180);
+
+    }
+
+    sidebarTitle.children[0].scrollTo({
+      left: sidebarTitle.children[0].scrollWidth - sidebarTitle.children[0].offsetLeft,
+      behavior: titleAnimation
+    });
 
 
     // if navigating in repository
@@ -89,9 +187,24 @@ async function renderSidebarHTML() {
 
           let file = getLatestVersion(item);
 
-          if (modifiedFiles[file.sha]) {
-            delete modifiedFilesResp[file.sha];
+          // search for matching modified files
+          for (let i = 0; i < modifiedFilesTemp.length; i++) {
+
+            let modFile = modifiedFilesTemp[i];
+
+            // if modified file has matching SHA or name
+            if (modFile.sha === file.sha || modFile.name === file.name) {
+
+              // remove modified file from temporary array
+              modifiedFilesTemp.splice(i, 1);
+
+              // reset index
+              i--;
+
+            }
+
           }
+
 
           // add modified flag to file
           let modified = '';
@@ -127,20 +240,31 @@ async function renderSidebarHTML() {
       });
 
 
-      // render modified files
-      Object.values(modifiedFilesResp).forEach(item => {
+      // render modified files from temporary array
 
-        if (item.dir == treeLoc.join()) {
+      let modFileNames = {};
+
+      modifiedFilesTemp.forEach(file => {
+
+        // if file isn't already in HTML
+        if (!modFileNames[file.name]) {
+
+          // add file to HTML
+
+          modFileNames[file.name] = true;
+
+          // get the file's latest version
+          file = getLatestVersion(file);
 
           // add modified flag to file
           let modified = '';
-          if (!item.eclipsed) modified = ' modified';
+          if (!file.eclipsed) modified = ' modified';
 
           out += `
-          <div class="item file`+ modified +`" sha="`+ item.sha +`">
+          <div class="item file`+ modified +`" sha="`+ file.sha +`">
             <div class="label">
               `+ fileIcon +`
-              <a class="name">`+ item.name +`</a>
+              <a class="name">`+ file.name +`</a>
             </div>
             <div class="push-wrapper">
               `+ pushIcon +`
@@ -160,9 +284,20 @@ async function renderSidebarHTML() {
       // render repositories
       resp.forEach(item => {
 
-        // if user does not have admin permissions in repo,
-        // show admin name in title ([admin]/[repo])
-        let fullName = item.permissions.admin ? item.name : item.full_name;
+        let fullName;
+
+        // if repo is owned by logged user
+        if (loggedUser && item.full_name.split('/')[0] == loggedUser.login) {
+
+          // show repo name
+          fullName = item.name;
+
+        } else {
+
+          // show username and repo name
+          fullName = item.full_name;
+
+        }
 
         out += `
         <div class="item repo" fullname="`+ item.full_name +`">
@@ -240,7 +375,7 @@ function addHTMLItemListeners() {
         // if item is a folder
 
         // change location
-        treeLoc[2] += '/' + item.querySelector('.name').textContent;
+        treeLoc[2] += '/' + item.innerText.replaceAll('\n', '');
         saveTreeLocLS(treeLoc);
 
         // render sidebar
@@ -288,7 +423,7 @@ function addHTMLItemListeners() {
 
 // push file to Git from HTML element
 async function pushFileFromHTML(fileEl) {
-
+  //@@
   // disable pushing file in HTML
   fileEl.classList.remove('modified');
   bottomFloat.classList.remove('modified');
@@ -318,6 +453,22 @@ async function pushFileFromHTML(fileEl) {
 // load file in sidebar and codeit
 async function loadFileInHTML(fileEl, fileSha) {
 
+  // clear existing selections in HTML
+  if (fileWrapper.querySelector('.selected')) {
+    fileWrapper.querySelector('.selected').classList.remove('selected');
+  }
+
+  // select the new file in HTML
+  fileEl.classList.add('selected');
+  fileEl.scrollIntoViewIfNeeded();
+
+  // show all files in HTML
+  let files = fileWrapper.querySelectorAll('.item[style="display: none;"]');
+  files.forEach(file => { file.style.display = '' });
+
+  header.classList.remove('searching');
+
+
   // if previous file selection exists
   if (selectedFile.sha) {
 
@@ -336,23 +487,6 @@ async function loadFileInHTML(fileEl, fileSha) {
 
   }
 
-
-  // show all files
-  let files = fileWrapper.querySelectorAll('.item[style="display: none;"]');
-  files.forEach(file => { file.style.display = '' });
-
-  header.classList.remove('searching');
-
-  // clear existing selections
-  if (fileWrapper.querySelector('.selected')) {
-    fileWrapper.querySelector('.selected').classList.remove('selected');
-  }
-
-
-  // select the new file
-
-  fileEl.classList.add('selected');
-  fileEl.scrollIntoViewIfNeeded();
 
   // if file is not modified; fetch from Git
   if (!modifiedFiles[fileSha]) {
@@ -403,11 +537,6 @@ async function loadFileInHTML(fileEl, fileSha) {
     // update bottom float
     updateFloat();
 
-  } else { // if on desktop
-
-    // check codeit scrollbar
-    checkScrollbarArrow();
-
   }
 
 }
@@ -445,6 +574,35 @@ sidebarTitle.addEventListener('click', () => {
   } else { // show learn page
 
     sidebar.classList.add('learn');
+
+  }
+
+})
+
+
+// show gradients on edges of sidebar title
+// when scrolling long titles
+
+sidebarTitle.children[0].addEventListener('scroll', () => {
+
+  if (sidebarTitle.children[0].scrollLeft > 0) {
+
+    sidebarTitle.classList.add('scrolled-start');
+
+  } else {
+
+    sidebarTitle.classList.remove('scrolled-start');
+
+  }
+
+  if ((sidebarTitle.children[0].offsetWidth + sidebarTitle.children[0].scrollLeft)
+      >= sidebarTitle.children[0].scrollWidth) {
+
+    sidebarTitle.classList.add('scrolled-end');
+
+  } else {
+
+    sidebarTitle.classList.remove('scrolled-end');
 
   }
 
@@ -552,7 +710,7 @@ addButton.addEventListener('click', () => {
 
             // add a differentiating number
             // and reconstruct file name
-            fileName = fileName[0] + '-1' + fileName[1];
+            fileName = fileName[0] + '-1.' + fileName[1];
 
           }
 
@@ -566,27 +724,25 @@ addButton.addEventListener('click', () => {
                            [0, 0], [0, 0], true);
 
 
-        // if on desktop, open file
+        // open file
 
+        // show file content in codeit
+        cd.textContent = '\r\n';
+
+        // change codeit lang
+        cd.lang = getFileLang(fileName);
+
+        // clear codeit history
+        cd.history = [];
+
+        // update line numbers
+        updateLineNumbersHTML();
+
+        // if on desktop
         if (!isMobile) {
-
-          // show file content in codeit
-          cd.textContent = '\r\n';
-
-          // change codeit lang
-          cd.lang = getFileLang(fileName);
 
           // set caret pos in codeit
           cd.setSelection(0, 0);
-
-          // clear codeit history
-          cd.history = [];
-
-          // update line numbers
-          updateLineNumbersHTML();
-
-          // check codeit scrollbar
-          checkScrollbarArrow();
 
         }
 
@@ -760,24 +916,20 @@ function onEditorScroll() {
 
 }
 
-function checkScrollbarArrow() {
+function updateScrollbarArrow() {
 
-  window.setTimeout(() => {
+  // if codeit is horizontally scrollable
+  if (cd.scrollWidth > cd.clientWidth) {
 
-    // if codeit is horizontally scrollable
-    if (cd.scrollWidth > cd.clientWidth) {
+    // move sidebar arrow up to make
+    // way for horizontal scrollbar
+    body.classList.add('scroll-enabled');
 
-      // move sidebar arrow up to make
-      // way for horizontal scrollbar
-      body.classList.add('scroll-enabled');
+  } else {
 
-    } else {
+    body.classList.remove('scroll-enabled');
 
-      body.classList.remove('scroll-enabled');
-
-    }
-
-  }, 0);
+  }
 
 }
 
@@ -795,28 +947,34 @@ function codeChange() {
       (modifiedFiles[selectedFile.sha] &&
        modifiedFiles[selectedFile.sha].eclipsed)) {
 
-    // add selected file to modifiedFiles
-    addSelectedFileToModFiles();
+    // if selected file is in modifiedFiles and eclipsed
+    if ((modifiedFiles[selectedFile.sha] &&
+        modifiedFiles[selectedFile.sha].eclipsed)) {
 
-    // enable pushing file in HTML
-
-    const selectedEl = fileWrapper.querySelector('.item[sha="'+ selectedFile.sha +'"]');
-
-    // if selected file element exists in HTML
-    if (selectedEl) {
-
-      // enable pushing file
-      selectedEl.classList.add('modified');
-
-      // enable pushing from bottom float
-      bottomFloat.classList.add('modified');
+      // file cannot be both eclipsed and modified
+      selectedFile.eclipsed = false;
 
     }
 
+    // add selected file to modifiedFiles
+    addSelectedFileToModFiles();
+
   }
 
-  // update line numbers
-  updateLineNumbersHTML();
+  // enable pushing file in HTML
+
+  const selectedEl = fileWrapper.querySelector('.item[sha="'+ selectedFile.sha +'"]');
+
+  // if selected file element exists in HTML
+  if (selectedEl) {
+
+    // enable pushing file
+    selectedEl.classList.add('modified');
+
+    // enable pushing from bottom float
+    bottomFloat.classList.add('modified');
+
+  }
 
   // save code in async thread
   asyncThread(saveSelectedFileContent, 30);
@@ -829,46 +987,65 @@ function codeChange() {
 function protectUnsavedCode() {
 
   // get selected file element in HTML
-  const selectedEl = fileWrapper.querySelector('.item[sha="'+ selectedFile.sha +'"]');
+  // by sha
+  let selectedElSha = fileWrapper.querySelectorAll('.file[sha="'+ selectedFile.sha +'"]');
+  let selectedElName;
 
-  // if selected file is not in HTML,
-  // protect unsaved code by clearing codeit
-  if (selectedEl == null) {
+  // if the selected file's sha changed
+  if (selectedElSha.length == 0) {
 
-    // clear codeit
+    // get selected file element in HTML
+    // by name
+    selectedElName = Array.from(fileWrapper.querySelectorAll('.item.file'))
+                     .filter(file => file.querySelector('.name').textContent == selectedFile.name);
 
-    // clear codeit contents
-    cd.textContent = '';
+    selectedElName = (selectedElName.length > 0) ? selectedElName[0] : null;
 
-    // change codeit lang
-    cd.lang = '';
+    // if new version of selected file exists
+    if (selectedElName !== null) {
 
-    // clear codeit history
-    cd.history = [];
+      // load file
+      loadFileInHTML(selectedElName, getAttr(selectedElName, 'sha'));
 
-    // update line numbers
-    updateLineNumbersHTML();
+    } else {
 
-    // if on mobile, show sidebar
-    if (isMobile) {
+      // if the selected file was deleted,
+      // protect unsaved code by clearing codeit
 
-      // don't transition
-      body.classList.add('notransition');
+      // clear codeit contents
+      cd.textContent = '';
 
-      // show sidebar
-      toggleSidebar(true);
-      saveSidebarStateLS();
+      // change codeit lang
+      cd.lang = '';
 
-      onNextFrame(() => {
+      // clear codeit history
+      cd.history = [];
 
-        body.classList.remove('notransition');
+      // update line numbers
+      updateLineNumbersHTML();
 
-      });
+      // if on mobile, show sidebar
+      if (isMobile) {
+
+        // don't transition
+        body.classList.add('notransition');
+
+        // show sidebar
+        toggleSidebar(true);
+        saveSidebarStateLS();
+
+        onNextFrame(() => {
+
+          body.classList.remove('notransition');
+
+        });
+
+      }
+
+      // change selected file to empty file
+      changeSelectedFile('', '', '', '', '', [0, 0], [0, 0], false);
 
     }
-
-    // change selected file to empty file
-    changeSelectedFile('', '', '', '', '', [0, 0], [0, 0], false);
 
   }
 
@@ -891,6 +1068,9 @@ function setupEditor() {
 
     }
 
+    // prevent bottom float disappearing on mobile
+    if (isMobile) lastScrollTop = selectedFile.scrollPos[1];
+
     // scroll to pos in code
     cd.scrollTo(selectedFile.scrollPos[0], selectedFile.scrollPos[1]);
 
@@ -902,31 +1082,24 @@ function setupEditor() {
 
   // add editor event listeners
 
-  cd.on('modify', codeChange);
+  cd.on('type', codeChange);
   cd.on('scroll', onEditorScroll);
   cd.on('caretmove', saveSelectedFileCaretPos);
 
-  if (!isMobile) cd.on('modify scroll', checkScrollbarArrow);
+  if (!isMobile) cd.on('type', updateScrollbarArrow);
 
   // update on screen resize
+
+  let lastWidth = undefined;
+
   window.addEventListener('resize', () => {
 
-    // update line numbers
-    updateLineNumbersHTML();
-
-    // check codeit scrollbar
-    if (!isMobile) checkScrollbarArrow();
-
-  });
-
-  // update line numbers when finished highlighting
-  Prism.hooks.add('complete', function (env) {
-
-    if (!env.code) {
+    if (lastWidth === window.innerWidth) {
       return;
     }
 
-    // update line numbers
+    lastWidth = window.innerWidth;
+
     updateLineNumbersHTML();
 
   });
@@ -966,12 +1139,11 @@ function updateLineNumbersHTML() {
 
     if (cd.querySelector('.line-numbers-rows')) {
 
-      cd.querySelector('.line-numbers-rows').remove();
+      cd.querySelector('.line-numbers-rows').textContent = '';
 
     }
 
     cd.classList.remove('line-numbers');
-    cd.style.setProperty('--gutter-length', '');
 
     return;
 
@@ -979,15 +1151,23 @@ function updateLineNumbersHTML() {
 
   cd.classList.add('line-numbers');
 
-  // update line numbers
-  Prism.plugins.lineNumbers.resize(cd);
+  Prism.plugins.lineNumbers.update(cd);
+
+
+  if (!isMobile) {
+
+    updateScrollbarArrow();
+    updateLiveViewArrow();
+
+  }
 
 }
 
 function setupSidebar() {
 
-  // if not logged into Github
-  if (githubToken == null) {
+  // if not logged into git
+  // and navigated to Repositories page
+  if (gitToken == '' && treeLoc[1] == '') {
 
     // show intro screen
     sidebar.classList.add('intro');
@@ -1005,7 +1185,7 @@ function setupSidebar() {
 
     });
 
-  } else { // if logged into Github
+  } else { // if logged into git
 
     // render sidebar
     renderSidebarHTML();

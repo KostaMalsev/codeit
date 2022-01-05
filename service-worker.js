@@ -1,7 +1,7 @@
 'use strict';
 
 // update cache names any time any of the cached files change
-const CACHE_NAME = 'static-cache-v218';
+const CACHE_NAME = 'static-cache-v270';
 
 // list of files to cache
 const FILES_TO_CACHE = [
@@ -11,6 +11,8 @@ const FILES_TO_CACHE = [
 
   '/lib/codeit-line-numbers.js',
   '/lib/codeit-match-braces.js',
+  '/lib/codeit-inline-color.js',
+  '/lib/codeit-autolinker.js',
 
   '/full.html',
   '/full.css',
@@ -27,14 +29,14 @@ const FILES_TO_CACHE = [
   '/localstorage.js',
   '/bottomfloat.js',
 
-  '/dark.css',
+  '/dark-theme.css',
 
   '/fonts/fonts.css',
-  '/fonts/googlesansmono.woff2',
 
-  'https://rsms.me/inter/inter.css',
-  'https://rsms.me/inter/font-files/Inter-Regular.woff2?v=3.19',
-  'https://rsms.me/inter/font-files/Inter-roman.var.woff2?v=3.19',
+  '/fonts/Mono-Sans/MonoSans-Regular.woff2',
+  '/fonts/Mono-Sans/MonoSans-Bold.woff2',
+
+  '/fonts/Inter/Inter.var.woff2',
 
   'https://plausible.io/js/plausible.js',
 

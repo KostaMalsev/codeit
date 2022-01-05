@@ -27,6 +27,7 @@ function loadLS() {
     
   }
   
+  setupLiveView();
   setupCodeitApp();
   
 }
@@ -61,8 +62,19 @@ function saveSidebarStateLS() {
 
 }
 
-function saveAuthTokenLS(authToken) {
+function saveGitTokenLS(gitToken) {
 
-  setStorage('token', authToken);
+  setStorage('gitToken', gitToken);
 
+}
+
+
+function logOutFromGitLS() {
+  
+  gitToken = '';
+  loggedUser = '';
+  
+  setStorage('gitToken', '');
+  setStorage('loggedUser', '');
+  
 }
