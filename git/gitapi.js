@@ -40,24 +40,8 @@ let git = {
 
   },
 
-  // get file
-  'getFile': async (treeLoc, fileSha) => {
-
-    // map tree location
-    let query = 'https://api.github.com';
-    const [user, repo] = treeLoc;
-
-    query += '/repos/'+ user +'/'+ repo +'/git/blobs/'+ fileSha;
-
-    // get the query
-    const resp = await axios.get(query, gitToken);
-
-    return resp;
-
-  },
-
-  // get small file (up to 1MB)
-  'getSmallFile': async (treeLoc, fileName) => {
+  // get file (up to 1MB)
+  'getFile': async (treeLoc, fileName) => {
 
     // map tree location
     let query = 'https://api.github.com';
