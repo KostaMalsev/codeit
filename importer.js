@@ -27,8 +27,8 @@ async function getScriptFile2(scriptPath) {
 
     let fileSha = fileObj[0].sha;
 
-    // Fetch the file content: BAR FETCH
-    const respF = await git.getFile([user, repo], fileSha);
+    // Fetch the file content
+    const respF = await git.getBlob([user, repo], fileSha);
 
     return respF.content;
 
@@ -125,7 +125,7 @@ async function getScriptFile(scriptPath) {
 
   }
 
-  const resp = await git.getFile([user, repo], fileSha);
+  const resp = await git.getBlob([user, repo], fileSha);
 
   return resp.content;
 
