@@ -342,83 +342,64 @@
     </div>
   </div>
 
-
   <script src="lib/prism.js" data-manual></script>
   <script>
   Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
   </script>
 
-
   <link rel="stylesheet" href="/editor-theme.css">
 
   <script src="lib/codeit.js"></script>
-
   <script src="lib/plugins/codeit-line-numbers.js"></script>
   <script src="lib/plugins/codeit-match-braces.js"></script>
   <script src="lib/plugins/codeit-autolinker.js"></script>
-
   <script src="worker/worker-channel.js"></script>
 
+  <!-- Load Utility Scripts -->
   <script src="utils.js"></script>
   <script src="manifest.js"></script>
   <script src="files.js"></script>
   <script src="links.js"></script>
   <script src="repos.js"></script>
 
+  <!-- Load Git-related Scripts -->
   <script src="git/gitapi.js"></script>
   <script src="git/gitauth.js"></script>
-
   <script src="codedrop.js"></script>
   
-  <!--<script src="filebrowser.js"></script>-->
-  <script src="./ide/ide.js"></script>
+  <!-- Load IDE Module (Replacing filebrowser.js) -->
+  <script type="module" src="ide/src/index.js"></script>
 
+  <!-- Load Live View Scripts -->
   <script src="live-view/extensions/draggable.js"></script>
-
   <script src="live-view/live-view.js"></script>
-
   <script src="spotlightsearch.js"></script>
-
-  <!--<script src="localstorage.js"></script>-->
-  <script src="./ide/src/utils/localStorage.js"></script>
-
-  <script src="bottomfloat.js"></script>
   
+  <!-- Other UI Components -->
+  <script src="bottomfloat.js"></script>
   <script src="context-menu.js"></script>
   
+  <!-- Load Optional Scripts -->
   <script src="lib/plugins/codeit-autocomplete.js" async></script>
-  
   <script src="live-view/extensions/beautifier.min.js" async></script>
-  
   <script src="live-view/extensions/mobile-console/console-sheet.js" async></script>
 
-
   <script>
-
     // show loader if not loaded after 800ms
     // (really slow connection)
     window.setTimeout(() => {
-
       if (!body.classList.contains('loaded')) {
-
         document.querySelector('.splash-wrapper').classList.add('loader');
-
       }
-
     }, 800);
 
     // show connection message if not loaded after 5s
     // (extremely slow connection to offline)
     window.setTimeout(() => {
-
       if (!body.classList.contains('loaded')) {
-
         document.querySelector('.splash-wrapper').classList.add('connection');
-
       }
-
     }, 5000);
-
   </script>
 
 </body>
