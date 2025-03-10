@@ -3,7 +3,7 @@
  * This file handles loading and saving data to localStorage
  */
 
-import { isEmbed } from './Config.js';
+import { isEmbed } from '../core/Config.js';
 
 /**
  * Load data from localStorage
