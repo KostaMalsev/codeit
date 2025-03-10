@@ -49,7 +49,7 @@ class Dialog {
         });
 
         // Cancel dialog on background click
-        this.dialogBack.addEventListener('click', () => {
+        this.dialogBackground.addEventListener('click', () => {
             if (this.element.classList.contains('cancelable')) {
                 this.hide();
 
