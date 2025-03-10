@@ -6,7 +6,7 @@ class Editor {
         this.fileBrowser = fileBrowser;
 
         // DOM elements
-        this.element = document.querySelector('.codeit');
+        this.element = document.querySelector('cd-el');
         this.lineNumbers = document.querySelector('.line-numbers');
         this.cd = document.querySelector('.codeit'); // Alias for convenience
 
