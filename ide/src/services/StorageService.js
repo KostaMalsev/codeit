@@ -23,6 +23,10 @@ class StorageService {
         }
     }
 
+    loadFromStorage(fileBrowser) {
+        StorageUtils.loadFromStorage(fileBrowser);
+    }
+
     /**
      * Get an item from localStorage
      * @param {string} key - The key to get
