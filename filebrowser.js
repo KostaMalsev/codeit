@@ -3906,26 +3906,24 @@ async function createFolderInGit(folderName, placeholderFileName, commitMessage)
   const [user, repo, contents] = treeLoc;
   const [repoName, branch] = repo.split(':');
 
-  // Prepare the path for the new file - we create a .gitkeep file by convention
+  // Prepare the path for the new file - we create a .gitkeep file by convention 
   const filePath = contents + '/' + folderName + '/' + placeholderFileName;
 
-  // Create empty content (or you could add a small readme about the folder's purpose)
-  const fileContent = encodeUnicode('');
+  // Create empty content
+  const fileContent = '';
 
-  // Create a commit for the new file
-  const commitFile = {
-    name: placeholderFileName,
-    dir: [user, repo, contents + '/' + folderName].join(','),
-    content: fileContent
-  };
-
+  // Create a commit for the new folder
   const commit = {
     message: commitMessage,
-    file: commitFile
+    file: {
+      name: placeholderFileName,
+      dir: [user, repo, contents + '/' + folderName].join(','),
+      content: encodeUnicode(fileContent)
+    }
   };
 
   // Push the file to Git to create the folder
-  return await git.createFolderAndPushFile(commit);
+  return await git.push(commit);
 }
 
 // 4. Update the add button click handler to show the menu when in a repository
