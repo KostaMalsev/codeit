@@ -6,7 +6,7 @@ class SearchBar {
         this.fileBrowser = fileBrowser;
 
         // DOM elements
-        this.searchButton = document.querySelector('.search-button');
+        this.searchButton = document.querySelector('.search');
         this.searchInput = document.querySelector('.search-input');
         this.header = document.querySelector('.header');
 
