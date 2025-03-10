@@ -10,7 +10,7 @@ class FileExplorer {
         this.sidebar = document.querySelector('.sidebar');
         this.addButton = document.querySelector('.add');
         this.header = document.querySelector('.header');
-        this.searchButton = document.querySelector('.search-button');
+        this.searchButton = document.querySelector('.search');
 
         // UI icons
         this.fileIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24"><path d="M3 3h18v18H3V3zm16 16V5H5v14h14zM7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h7v2H7v-2z"/></svg>';
