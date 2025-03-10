@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileBrowser = new FileBrowser();
 
     // Expose to window for debugging in development
-    if (process.env.NODE_ENV === 'development') {
+    if (fileBrowser.config.isDev) {
         window.fileBrowser = fileBrowser;
     }
 });
