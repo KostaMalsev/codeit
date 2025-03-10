@@ -5,13 +5,12 @@ class Dialog {
     constructor(fileBrowser) {
         this.fileBrowser = fileBrowser;
 
-        // DOM elements
-        this.element = document.querySelector('.dialog');
-        this.dialogBack = document.querySelector('.dialog-back');
-        this.dialogContent = document.querySelector('.dialog-content');
-        this.dialogMessage = document.querySelector('.dialog-message');
-        this.dialogButton = document.querySelector('.dialog-button');
-        this.dialogCancel = document.querySelector('.dialog-cancel');
+        // Use UI references
+        this.element = fileBrowser.ui.dialogWrapper;
+        this.dialogTitle = fileBrowser.ui.dialogTitle;
+        this.dialogButton = fileBrowser.ui.dialogConfirm;
+        this.dialogCancel = fileBrowser.ui.dialogCancel;
+        this.dialogBackground = fileBrowser.ui.dialogBackground;
 
         // State
         this.dialogResolve = null;
@@ -71,48 +70,14 @@ class Dialog {
      * @returns {Promise<boolean>} Whether the dialog was confirmed
      */
     show(callback, message, buttonText, cancelable = false) {
-        return new Promise(resolve => {
-            // Set dialog properties
-            this.dialogMessage.textContent = message;
-            this.dialogButton.textContent = buttonText;
-
-            // Set callback and resolve function
-            this.dialogCallback = callback;
-            this.dialogResolve = resolve;
-
-            // Show/hide cancel button based on cancelable
-            if (cancelable) {
-                this.element.classList.add('cancelable');
-            } else {
-                this.element.classList.remove('cancelable');
-            }
-
-            // Show dialog
-            this.element.classList.add('visible');
-            this.dialogBack.classList.add('visible');
-
-            // If on mobile, change status bar color
-            if (this.fileBrowser.config.isMobile) {
-                document.querySelector('meta[name="theme-color"]').content = 'rgba(0, 0, 0, 0.5)';
-            }
-        });
+        return this.fileBrowser.ui.showDialog(callback, message, buttonText, cancelable);
     }
 
     /**
      * Hide the dialog
      */
     hide() {
-        this.element.classList.remove('visible');
-        this.dialogBack.classList.remove('visible');
-
-        // If on mobile, restore status bar color
-        if (this.fileBrowser.config.isMobile) {
-            if (document.body.classList.contains('expanded')) {
-                document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
-            } else {
-                document.querySelector('meta[name="theme-color"]').content = '#313744';
-            }
-        }
+        this.fileBrowser.ui.hideDialog();
     }
 }
 

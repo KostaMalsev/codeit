@@ -5,13 +5,13 @@ class Sidebar {
     constructor(fileBrowser) {
         this.fileBrowser = fileBrowser;
 
-        // DOM elements
-        this.element = document.querySelector('.sidebar');
-        this.fileWrapper = document.querySelector('.file-wrapper');
-        this.sidebarToggle = document.querySelector('.sidebar-toggle');
-        this.sidebarTitle = document.querySelector('.sidebar-title');
-        this.sidebarLogo = document.querySelector('.sidebar-logo');
-        this.sidebarBranch = document.querySelector('.sidebar-branch');
+        // Use UI references
+        this.element = fileBrowser.ui.sidebar;
+        this.sidebarToggle = fileBrowser.ui.sidebarToggle;
+        this.sidebarTitle = fileBrowser.ui.sidebarTitle;
+        this.sidebarLogo = fileBrowser.ui.sidebarLogo;
+        this.sidebarBranch = fileBrowser.ui.sidebarBranch;
+        this.fileWrapper = fileBrowser.ui.fileWrapper;
 
         // State
         this.isVisible = this.fileBrowser.storageService.getItem('sidebar') === 'true';

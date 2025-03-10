@@ -17,6 +17,7 @@ import LiveView from '../components/LiveView.js';
 import BottomFloat from '../components/BottomFloat.js';
 
 // Import UI components
+import UI from './UI';
 import Dialog from '../ui/Dialog.js';
 import ContextMenu from '../ui/ContextMenu.js';
 import SearchBar from '../ui/SearchBar.js';
@@ -31,7 +32,11 @@ class FileBrowser {
         // Initialize core services
         this.config = new Config();
         this.utils = new Utils();
+        this.ui = new UI();
         this.eventManager = new EventManager();
+
+        // Share config with UI
+        this.ui.config = this.config;
 
         // Initialize services
         this.storageService = new StorageService();

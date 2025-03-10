@@ -5,8 +5,8 @@ class NotificationService {
     constructor(fileBrowser) {
         this.fileBrowser = fileBrowser;
 
-        // DOM elements
-        this.message = document.querySelector('.message');
+        // Use UI for message element
+        this.messageEl = fileBrowser.ui.messageEl;
 
         // State
         this.messageTimeout = null;
@@ -46,43 +46,14 @@ class NotificationService {
      * @param {number} duration - The duration in ms, -1 for indefinite
      */
     showMessage(messageText, duration = 3000) {
-        // Clear existing timeout
-        if (this.messageTimeout) {
-            clearTimeout(this.messageTimeout);
-            this.messageTimeout = null;
-        }
-
-        // If message is an object with icon and message
-        if (typeof messageText === 'object') {
-            this.message.innerHTML = `
-          <div class="icon">${messageText.icon}</div>
-          <div class="text">${messageText.message}</div>
-        `;
-        } else {
-            this.message.innerHTML = `<div class="text">${messageText}</div>`;
-        }
-
-        this.message.classList.add('visible');
-
-        // If duration is not indefinite
-        if (duration !== -1) {
-            this.messageTimeout = setTimeout(() => {
-                this.hideMessage();
-            }, duration);
-        }
+        this.fileBrowser.ui.showMessage(messageText, duration);
     }
 
     /**
      * Hide the current message
      */
     hideMessage() {
-        this.message.classList.remove('visible');
-
-        // Clear timeout
-        if (this.messageTimeout) {
-            clearTimeout(this.messageTimeout);
-            this.messageTimeout = null;
-        }
+        this.fileBrowser.ui.hideMessage();
     }
 
     /**
