@@ -1,307 +1,326 @@
+/**
+ * GitAuth service for handling GitHub authentication
+ * This module handles GitHub OAuth authentication flow
+ */
 
-// github sign-in
-
-window.addEventListener('load', async () => {
-
-  gitToken = getStorage('gitToken') ?? '';
-
-  if (gitToken == 'undefined') {
+/**
+ * Initialize the GitHub authentication
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ * @returns {Promise<void>} A promise that resolves when initialization is complete
+ */
+export async function initialize(fileBrowser) {
+  // Get stored token
+  let gitToken = fileBrowser.storageService.getItem('gitToken') ?? '';
+  if (gitToken === 'undefined') {
     gitToken = '';
   }
 
+  // Store token in GitService
+  fileBrowser.gitService.token = gitToken;
 
-  // decode URL
-  linkData = decodeLink(window.location.href);
+  // Process URL parameters
+  const linkData = decodeLink(window.location.href);
 
-  // clear URL
-  window.history.replaceState(window.location.origin, 'Codeit', window.location.origin + '/full');
+  // Clear URL
+  window.history.replaceState(
+    window.location.origin,
+    'Codeit',
+    window.location.origin + '/full'
+  );
 
-
-  // if treeLoc is in local storage
+  // Set tree location from link data or localStorage
   if (linkData.dir) {
-
-    treeLoc = linkData.dir;
-    saveTreeLocLS(treeLoc);
-
+    fileBrowser.treeLoc = linkData.dir;
+    fileBrowser.saveTreeLocation();
   } else {
+    // Get tree location from storage
+    const storedTreeLoc = fileBrowser.storageService.getItem('tree');
+    fileBrowser.treeLoc = storedTreeLoc ? storedTreeLoc.split(',') : ['', '', ''];
 
-    treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
-    
-    // if repo dosen't have a branch (legacy treeLoc)
-    if (treeLoc[1] && !treeLoc[1].includes(':')) {
-      
-      // add default branch to repo
-      treeLoc[1] += ':main';
-      saveTreeLocLS(treeLoc);
-      
+    // If repo doesn't have a branch (legacy treeLoc)
+    if (fileBrowser.treeLoc[1] && !fileBrowser.treeLoc[1].includes(':')) {
+      // Add default branch to repo
+      fileBrowser.treeLoc[1] += ':main';
+      fileBrowser.saveTreeLocation();
     }
-    
   }
 
-
-  if (getStorage('loggedUser')) {
-    
-    loggedUser = getStorage('loggedUser');
-    
+  // Get logged user from localStorage
+  let loggedUser = fileBrowser.storageService.getItem('loggedUser');
+  if (loggedUser) {
     try {
-      
-      loggedUser = JSON.parse(loggedUser);
-
-      // save logged user in local storage
-      setStorage('loggedUser', loggedUser.login);
-      
-    } catch(e) {}
-    
+      // Try to parse if it's a JSON object
+      const userData = JSON.parse(loggedUser);
+      // Save just the login name
+      fileBrowser.storageService.setItem('loggedUser', userData.login);
+      loggedUser = userData.login;
+    } catch (e) {
+      // If parsing fails, the value is already a string
+    }
   } else {
-    
-    loggedUser = false;
-    
+    loggedUser = null;
   }
+  fileBrowser.gitService.loggedUser = loggedUser;
 
-  signInButton.addEventListener('click', openGitHubSignIn);
+  // Set up sign-in button event listener
+  fileBrowser.ui.signInButton.addEventListener('click', () => {
+    openGitHubSignIn(fileBrowser);
+  });
 
-  window.addEventListener('message', async (event) => {
-    
-    // if received a git code
-    if (event.origin === window.location.origin &&
-        event.data && event.data.startsWith('gitCode=')) {
-    
-      // hide intro screen
-      sidebar.classList.remove('intro');
-      
-      // if on Repositories page
-      if (treeLoc[1] === '') {
-        
-        // show sidebar title
-        sidebarLogo.innerText = 'Repositories';
-        
-        // hide branch button
-        sidebarBranch.classList.remove('visible');
-        
-        sidebarLogo.classList.add('notransition');
-        
-        // scroll to start of title
-        sidebarLogo.scrollTo(0, 0);
-        scrolledSidebarTitle();
-        
-        onNextFrame(() => {
-          sidebarLogo.classList.remove('notransition');
-        });
-        
-      }
-  
-      // if on safari, refresh header color
-      if (isSafari) {
-  
-        document.querySelector('meta[name="theme-color"]').content = '#313744';
-  
-        onNextFrame(() => {
-  
-          document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
-  
-        });
-  
-      }
-  
-      // start loading
-      startLoading();
-      
-      // show message
-      showMessage('Signing in...', -1);
-      
-      
-      // update legacy workflow permission
-      setStorage('hasWorkflowPermission', 'true');
-      
-      
-      const gitCode = event.data.split('gitCode=')[1];
-  
-      // get git token from Github
-      await getGithubToken(gitCode);
-      
-      
-      // clear modified repos
-      modifiedRepos = {};
-      updateModReposLS();
-      
-      
-      // hide message
-      if (messageEl.textContent === 'Signing in...') {
-        hideMessage();
-      }
-      
-      // render sidebar
-      renderSidebarHTML();
-      
-    }
-  
-  })
-  
-  
-  // if git code exists in link
+  // Set up message listener for OAuth callback
+  setupMessageListener(fileBrowser);
+
+  // Handle GitHub code if present in URL
   if (linkData.gitCode) {
-    
-    // hide intro screen
-    sidebar.classList.remove('intro');
-    
-    // if on Repositories page
-    if (treeLoc[1] === '') {
-      
-      // show sidebar title
-      sidebarLogo.innerText = 'Repositories';
-      
-    }
-    
-    if (getStorage('sidebar') === 'true') {
-      
-      // don't transition
-      body.classList.add('notransition');
-  
-      toggleSidebar(true);
-  
-      onNextFrame(() => {
-  
-        body.classList.remove('notransition');
-  
-      });
-
-
-      // if on safari, refresh header color
-      if (isSafari) {
-  
-        document.querySelector('meta[name="theme-color"]').content = '#313744';
-  
-        onNextFrame(() => {
-  
-          document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
-  
-        });
-        
-      }
-
-    } else {
-      
-      // if on safari, refresh header color
-      if (isSafari) {
-  
-        document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
-  
-        onNextFrame(() => {
-  
-          document.querySelector('meta[name="theme-color"]').content = '#313744';
-  
-        });
-        
-      }
-      
-    }
-
-    // start loading
-    startLoading();
-    
-    body.classList.add('loaded');
-    
-    showMessage('Signing in...', -1);
-    
-    
-    // update legacy workflow permission
-    setStorage('hasWorkflowPermission', 'true');
-
-
-    const gitCode = linkData.gitCode;
-
-    // get git token from Github
-    await getGithubToken(gitCode);
-    
-    
-    // clear modified repos
-    modifiedRepos = {};
-    updateModReposLS();
-    
-    
-    // hide message
-    if (messageEl.textContent === 'Signing in...') {
-      hideMessage();
-    }
-    
+    await handleGitHubCode(fileBrowser, linkData.gitCode);
   }
-  
-  
-  loadLS();
+}
 
-});
+/**
+ * Set up message listener for OAuth callback
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ */
+function setupMessageListener(fileBrowser) {
+  window.addEventListener('message', async (event) => {
+    // If received a git code
+    if (event.origin === window.location.origin &&
+      event.data && event.data.startsWith('gitCode=')) {
 
+      // Hide intro screen
+      fileBrowser.ui.sidebar.classList.remove('intro');
 
+      // If on Repositories page
+      if (fileBrowser.treeLoc[1] === '') {
+        updateUIForRepositoriesPage(fileBrowser);
+      }
+
+      // If on Safari, refresh header color
+      if (fileBrowser.config.isSafari) {
+        refreshSafariHeaderColor(fileBrowser);
+      }
+
+      // Start loading
+      fileBrowser.startLoading();
+
+      // Show message
+      fileBrowser.notificationService.showMessage('Signing in...', -1);
+
+      // Update legacy workflow permission
+      fileBrowser.storageService.setItem('hasWorkflowPermission', 'true');
+
+      const gitCode = event.data.split('gitCode=')[1];
+
+      // Get git token from GitHub
+      await getGithubToken(fileBrowser, gitCode);
+
+      // Clear modified repos
+      fileBrowser.modifiedRepos = {};
+      fileBrowser.saveModifiedRepos();
+
+      // Hide message
+      if (fileBrowser.ui.messageEl.textContent === 'Signing in...') {
+        fileBrowser.notificationService.hideMessage();
+      }
+
+      // Render sidebar
+      fileBrowser.fileExplorer.renderExplorer();
+    }
+  });
+}
+
+/**
+ * Update UI for Repositories page
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ */
+function updateUIForRepositoriesPage(fileBrowser) {
+  // Show sidebar title
+  fileBrowser.ui.sidebarLogo.innerText = 'Repositories';
+
+  // Hide branch button
+  fileBrowser.ui.sidebarBranch.classList.remove('visible');
+
+  fileBrowser.ui.sidebarLogo.classList.add('notransition');
+
+  // Scroll to start of title
+  fileBrowser.ui.sidebarLogo.scrollTo(0, 0);
+  fileBrowser.sidebar.updateScrolledTitle();
+
+  fileBrowser.utils.onNextFrame(() => {
+    fileBrowser.ui.sidebarLogo.classList.remove('notransition');
+  });
+}
+
+/**
+ * Refresh Safari header color
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ */
+function refreshSafariHeaderColor(fileBrowser) {
+  document.querySelector('meta[name="theme-color"]').content = '#313744';
+
+  fileBrowser.utils.onNextFrame(() => {
+    document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
+  });
+}
+
+// Track GitHub sign-in windows
 let openGitHubSignInWindow;
 let openGitHubSignInListener;
 
-function openGitHubSignIn() {
-
+/**
+ * Open GitHub sign-in window or redirect
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ * @returns {Promise<void>} A promise that resolves when authentication is complete
+ */
+export function openGitHubSignIn(fileBrowser) {
   return new Promise(resolve => {
-
     const authURL = 'https://github.com/login/oauth/authorize?client_id=7ede3eed3185e59c042d&scope=repo,user,write:org,workflow';
 
-    if (isMobile) {
-
+    if (fileBrowser.config.isMobile) {
       window.location.href = authURL;
-
     } else {
-
       if (openGitHubSignInWindow) {
-        
         openGitHubSignInWindow.close();
         window.removeEventListener('message', openGitHubSignInListener);
-        
       }
-      
-      openGitHubSignInListener = window.addEventListener('message', (event) => {
 
-        // if received a git code
+      openGitHubSignInListener = (event) => {
+        // If received a git code
         if (event.origin === window.location.origin &&
-            event.data.startsWith('gitCode=')) {
-
+          event.data.startsWith('gitCode=')) {
           window.removeEventListener('message', openGitHubSignInListener);
-
           resolve();
-
         }
+      };
 
-      });
+      window.addEventListener('message', openGitHubSignInListener);
 
-      // open sign-in window
-      openGitHubSignInWindow = window.open(authURL, 'Sign in with GitHub', 'height=575,width=575');
-
+      // Open sign-in window
+      openGitHubSignInWindow = window.open(
+        authURL,
+        'Sign in with GitHub',
+        'height=575,width=575'
+      );
     }
-    
   });
-
 }
 
+/**
+ * Handle GitHub code from URL or message
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ * @param {string} gitCode - The GitHub authorization code
+ */
+async function handleGitHubCode(fileBrowser, gitCode) {
+  // Hide intro screen
+  fileBrowser.ui.sidebar.classList.remove('intro');
 
-async function getGithubToken(gitCode) {
-
-  // post through CORS proxy to git with clientId, clientSecret and code
-  const resp = await axios.get(window.location.origin + '/api/cors?url=' +
-                               'https://github.com/login/oauth/access_token?' +
-                               'client_id=7ede3eed3185e59c042d' +
-                               '&client_secret=c1934d5aab1c957800ea8e84ce6a24dda6d68f45' +
-                               '&code=' + gitCode, '', true);
-
-  // save git token to localStorage
-  gitToken = resp.split('access_token=')[1].split('&')[0];
-  saveGitTokenLS(gitToken);
-
-
-  // if logged user dosen't exist
-  if (getStorage('loggedUser') === null) {
-
-    // get logged user
-    loggedUser = await axios.get('https://api.github.com/user', gitToken);
-    loggedUser = loggedUser.login;
-  
-    // save logged user in local storage
-    setStorage('loggedUser', loggedUser);
-    
+  // If on Repositories page
+  if (fileBrowser.treeLoc[1] === '') {
+    // Show sidebar title
+    fileBrowser.ui.sidebarLogo.innerText = 'Repositories';
   }
 
+  // Handle sidebar visibility
+  if (fileBrowser.storageService.getItem('sidebar') === 'true') {
+    // Don't transition
+    fileBrowser.ui.body.classList.add('notransition');
+
+    fileBrowser.sidebar.toggle(true);
+
+    fileBrowser.utils.onNextFrame(() => {
+      fileBrowser.ui.body.classList.remove('notransition');
+    });
+
+    // If on Safari, refresh header color
+    if (fileBrowser.config.isSafari) {
+      document.querySelector('meta[name="theme-color"]').content = '#313744';
+
+      fileBrowser.utils.onNextFrame(() => {
+        document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
+      });
+    }
+  } else {
+    // If on Safari, refresh header color
+    if (fileBrowser.config.isSafari) {
+      document.querySelector('meta[name="theme-color"]').content = '#1a1c24';
+
+      fileBrowser.utils.onNextFrame(() => {
+        document.querySelector('meta[name="theme-color"]').content = '#313744';
+      });
+    }
+  }
+
+  // Start loading
+  fileBrowser.startLoading();
+  fileBrowser.ui.body.classList.add('loaded');
+  fileBrowser.notificationService.showMessage('Signing in...', -1);
+
+  // Update legacy workflow permission
+  fileBrowser.storageService.setItem('hasWorkflowPermission', 'true');
+
+  // Get git token from GitHub
+  await getGithubToken(fileBrowser, gitCode);
+
+  // Clear modified repos
+  fileBrowser.modifiedRepos = {};
+  fileBrowser.saveModifiedRepos();
+
+  // Hide message
+  if (fileBrowser.ui.messageEl.textContent === 'Signing in...') {
+    fileBrowser.notificationService.hideMessage();
+  }
 }
+
+/**
+ * Get GitHub token using authorization code
+ * @param {FileBrowser} fileBrowser - The main FileBrowser instance
+ * @param {string} gitCode - The GitHub authorization code
+ */
+async function getGithubToken(fileBrowser, gitCode) {
+  // Post through CORS proxy to git with clientId, clientSecret and code
+  const resp = await axios.get(
+    window.location.origin + '/api/cors?url=' +
+    'https://github.com/login/oauth/access_token?' +
+    'client_id=7ede3eed3185e59c042d' +
+    '&client_secret=c1934d5aab1c957800ea8e84ce6a24dda6d68f45' +
+    '&code=' + gitCode,
+    '',
+    true
+  );
+
+  // Parse token from response
+  const gitToken = resp.split('access_token=')[1].split('&')[0];
+
+  // Save git token
+  fileBrowser.gitService.token = gitToken;
+  fileBrowser.storageService.setItem('gitToken', gitToken);
+
+  // If logged user doesn't exist
+  if (fileBrowser.storageService.getItem('loggedUser') === null) {
+    // Get logged user
+    const userData = await axios.get('https://api.github.com/user', gitToken);
+    const loggedUser = userData.login;
+
+    // Store logged user
+    fileBrowser.gitService.loggedUser = loggedUser;
+    fileBrowser.storageService.setItem('loggedUser', loggedUser);
+  }
+}
+
+/**
+ * Decode link data from URL
+ * @param {string} url - The URL to decode
+ * @returns {Object} The decoded link data
+ */
+function decodeLink(url) {
+  // This function would need to be implemented based on your linkData schema
+  // Placeholder implementation:
+  return {
+    dir: null,
+    gitCode: url.includes('?code=') ? url.split('?code=')[1].split('&')[0] : null
+  };
+}
+
+export default {
+  initialize,
+  openGitHubSignIn
+};
