@@ -1,4 +1,4 @@
-import FileBrowser from './core/FileBrowser';
+import FileBrowser from './core/FileBrowser.js';
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
