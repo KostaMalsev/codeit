@@ -6,9 +6,9 @@ class Editor {
         this.fileBrowser = fileBrowser;
 
         // DOM elements
-        this.element = document.querySelector('.cd-el');
+        this.element = document.querySelector('cd-el');
         this.lineNumbers = document.querySelector('.line-numbers');
-        this.cd = document.querySelector('.cd-el'); // Alias for convenience
+        this.cd = document.querySelector('cd-el'); // Alias for convenience
 
         // Editor state
         this.lastScrollTop = 0;
