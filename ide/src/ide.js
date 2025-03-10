@@ -1,5 +1,5 @@
 import FileBrowser from './core/FileBrowser.js';
-import * as GitAuth from './services/GitAuth';
+import * as GitAuth from './services/GitAuth.js';
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
