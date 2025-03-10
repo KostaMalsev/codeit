@@ -1,4 +1,4 @@
-import * as StorageUtils from '../utils/localStorage';
+import * as StorageUtils from '../utils/localStorage.js';
 
 /**
  * Storage service for handling local storage operations

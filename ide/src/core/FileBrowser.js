@@ -1,25 +1,25 @@
-import Config from './Config';
-import Utils from './Utils';
-import EventManager from './EventManager';
+import Config from './Config.js';
+import Utils from './Utils.js';
+import EventManager from './EventManager.js';
 
 // Import services
-import GitService from '../services/GitService';
-import StorageService from '../services/StorageService';
-import NotificationService from '../services/NotificationService';
-import FormatService from '../services/FormatService';
+import GitService from '../services/GitService.js';
+import StorageService from '../services/StorageService.js';
+import NotificationService from '../services/NotificationService.js';
+import FormatService from '../services/FormatService.js';
 
 // Import components
-import Sidebar from '../components/Sidebar';
-import FileExplorer from '../components/FileExplorer';
-import BranchManager from '../components/BranchManager';
-import Editor from '../components/Editor';
-import LiveView from '../components/LiveView';
-import BottomFloat from '../components/BottomFloat';
+import Sidebar from '../components/Sidebar.js';
+import FileExplorer from '../components/FileExplorer.js';
+import BranchManager from '../components/BranchManager.js';
+import Editor from '../components/Editor.js';
+import LiveView from '../components/LiveView.js';
+import BottomFloat from '../components/BottomFloat.js';
 
 // Import UI components
-import Dialog from '../ui/Dialog';
-import ContextMenu from '../ui/ContextMenu';
-import SearchBar from '../ui/SearchBar';
+import Dialog from '../ui/Dialog.js';
+import ContextMenu from '../ui/ContextMenu.js';
+import SearchBar from '../ui/SearchBar.js';
 
 
 
