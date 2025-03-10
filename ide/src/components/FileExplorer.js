@@ -8,7 +8,7 @@ class FileExplorer {
         // DOM elements
         this.element = document.querySelector('.file-wrapper');
         this.sidebar = document.querySelector('.sidebar');
-        this.addButton = document.querySelector('.add-button');
+        this.addButton = document.querySelector('.add');
         this.header = document.querySelector('.header');
         this.searchButton = document.querySelector('.search-button');
 
