@@ -3,7 +3,19 @@
  * This file handles loading and saving data to localStorage
  */
 
-import { isEmbed } from '../core/Config.js';
+/**
+ * Check if the application is running in embed mode
+ * @returns {boolean} Whether the application is in embed mode
+ */
+function checkIfEmbed() {
+    return window.location.href.includes('embed=true') ||
+        window.location.href.includes('?embed') ||
+        window.parent !== window;
+}
+
+// Cache the result to avoid rechecking
+const isEmbed = checkIfEmbed();
+
 
 /**
  * Load data from localStorage

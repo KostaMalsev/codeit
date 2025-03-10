@@ -1,74 +1,74 @@
 
 let treeLoc, linkData, gitToken, authUser,
-    selectedFile, modifiedFiles, modifiedRepos;
+  selectedFile, modifiedFiles, modifiedRepos;
 
 
 const body = document.body,
 
-      cd = document.querySelector('cd-el'),
+  cd = document.querySelector('cd-el'),
 
-      bottomWrapper = document.querySelector('.bottom-wrapper'),
+  bottomWrapper = document.querySelector('.bottom-wrapper'),
 
-      bottomFloat = bottomWrapper.querySelector('.bottom-float'),
-      sidebarOpen = bottomFloat.querySelector('.sidebar-open'),
-      floatLogo = sidebarOpen.querySelector('.logo'),
-      pushWrapper = bottomFloat.querySelector('.push-wrapper'),
-      floatDownload = bottomFloat.querySelector('.download'),
-      
-      liveButtonOptions = bottomWrapper.querySelector('.live-button.options'),
+  bottomFloat = bottomWrapper.querySelector('.bottom-float'),
+  sidebarOpen = bottomFloat.querySelector('.sidebar-open'),
+  floatLogo = sidebarOpen.querySelector('.logo'),
+  pushWrapper = bottomFloat.querySelector('.push-wrapper'),
+  floatDownload = bottomFloat.querySelector('.download'),
 
-      sidebarToggle = document.querySelector('.sidebar-toggle'),
-      liveToggle = document.querySelector('.live-toggle'),
+  liveButtonOptions = bottomWrapper.querySelector('.live-button.options'),
 
-      sidebar = document.querySelector('.sidebar'),
-      introWrapper = sidebar.querySelector('.intro-wrapper'),
-      contentWrapper = sidebar.querySelector('.content-wrapper'),
-      learnWrapper = sidebar.querySelector('.learn-wrapper'),
+  sidebarToggle = document.querySelector('.sidebar-toggle'),
+  liveToggle = document.querySelector('.live-toggle'),
 
-      signInButton = introWrapper.querySelector('.sign-in'),
+  sidebar = document.querySelector('.sidebar'),
+  introWrapper = sidebar.querySelector('.intro-wrapper'),
+  contentWrapper = sidebar.querySelector('.content-wrapper'),
+  learnWrapper = sidebar.querySelector('.learn-wrapper'),
 
-      loader = contentWrapper.querySelector('.loader'),
-      header = contentWrapper.querySelector('.header'),
+  signInButton = introWrapper.querySelector('.sign-in'),
 
-      titleScreen = header.querySelector('.title-screen'),
-      searchScreen = header.querySelector('.search-screen'),
+  loader = contentWrapper.querySelector('.loader'),
+  header = contentWrapper.querySelector('.header'),
 
-      sidebarTitle = titleScreen.querySelector('.title'),
-      sidebarLogo = sidebarTitle.querySelector('.logo'),
-      sidebarBranch = sidebarTitle.querySelector('.branch-icon'),
+  titleScreen = header.querySelector('.title-screen'),
+  searchScreen = header.querySelector('.search-screen'),
 
-      addButton = header.querySelector('.add'),
+  sidebarTitle = titleScreen.querySelector('.title'),
+  sidebarLogo = sidebarTitle.querySelector('.logo'),
+  sidebarBranch = sidebarTitle.querySelector('.branch-icon'),
 
-      searchButton = titleScreen.querySelector('.search'),
-      searchBack = searchScreen.querySelector('.back'),
-      searchInput = searchScreen.querySelector('.search-input'),
-      searchClear = searchScreen.querySelector('.clear'),
+  addButton = header.querySelector('.add'),
 
-      sidebarBackground = document.querySelector('.sidebar-background'),
+  searchButton = titleScreen.querySelector('.search'),
+  searchBack = searchScreen.querySelector('.back'),
+  searchInput = searchScreen.querySelector('.search-input'),
+  searchClear = searchScreen.querySelector('.clear'),
 
-      fileWrapper = sidebar.querySelector('.files'),
+  sidebarBackground = document.querySelector('.sidebar-background'),
 
-      versionEl = learnWrapper.querySelector('.version'),
-      logoutButton = learnWrapper.querySelector('.logout'),
-      learnAbout = learnWrapper.querySelector('.about'),
-      learnShare = learnWrapper.querySelector('.share'),
-      learnClose = learnWrapper.querySelector('.close'),
+  fileWrapper = sidebar.querySelector('.files'),
 
-      branchMenu = document.querySelector('.branch-menu'),
-      
-      liveViewMenu = document.querySelector('.live-view-menu'),
-      liveMenuShare = liveViewMenu.querySelector('.share'),
-      liveMenuConsole = liveViewMenu.querySelector('.console'),
-                  
-      dialogWrapper = document.querySelector('.dialog-wrapper'),
-      dialogTitle = dialogWrapper.querySelector('.title'),
-      dialogCancel = dialogWrapper.querySelector('.cancel'),
-      dialogConfirm = dialogWrapper.querySelector('.confirm'),
-      dialogBackground = dialogWrapper.querySelector('.dialog-background'),
+  versionEl = learnWrapper.querySelector('.version'),
+  logoutButton = learnWrapper.querySelector('.logout'),
+  learnAbout = learnWrapper.querySelector('.about'),
+  learnShare = learnWrapper.querySelector('.share'),
+  learnClose = learnWrapper.querySelector('.close'),
 
-      messageEl = document.querySelector('.message'),
+  branchMenu = document.querySelector('.branch-menu'),
 
-      liveView = document.querySelector('.live-view');
+  liveViewMenu = document.querySelector('.live-view-menu'),
+  liveMenuShare = liveViewMenu.querySelector('.share'),
+  liveMenuConsole = liveViewMenu.querySelector('.console'),
+
+  dialogWrapper = document.querySelector('.dialog-wrapper'),
+  dialogTitle = dialogWrapper.querySelector('.title'),
+  dialogCancel = dialogWrapper.querySelector('.cancel'),
+  dialogConfirm = dialogWrapper.querySelector('.confirm'),
+  dialogBackground = dialogWrapper.querySelector('.dialog-background'),
+
+  messageEl = document.querySelector('.message'),
+
+  liveView = document.querySelector('.live-view');
 
 
 
@@ -117,18 +117,18 @@ function stopLoading() {
 let messageTimeout;
 
 let showMessage = (message, duration) => {
-  
+
   // if message includes an icon
   if (message.icon) {
-    
+
     // show message in HTML
     messageEl.innerHTML = message.icon + message.message;
-    
+
   } else {
-  
+
     // show message in HTML
     messageEl.textContent = message;
-    
+
   }
 
   // if message is already visible
@@ -148,19 +148,19 @@ let showMessage = (message, duration) => {
 
 
   if (messageTimeout) window.clearTimeout(messageTimeout);
-  
+
   if (duration !== -1) {
-    
+
     messageTimeout = window.setTimeout(() => {
-  
+
       messageEl.classList.remove('visible');
-  
+
     }, (duration ?? 2000));
-    
+
   } else {
-    
+
     messageTimeout = null;
-    
+
   }
 
 }
@@ -174,74 +174,74 @@ let hideMessage = () => {
 // show dialog
 
 let showDialog = (confirmHandler, titleText, confirmText, showOneButton = false) => {
-  
+
   return new Promise(resolve => {
-    
+
     // add dialog text to HTML
     dialogTitle.textContent = titleText;
     dialogConfirm.textContent = confirmText;
-    
+
     // toggle button visibility
     dialogWrapper.classList.toggle('one-button', showOneButton);
-    
+
     // show dialog
     dialogWrapper.classList.add('visible');
-    
+
     // if on desktop, hide sidebar toggle
     if (!isMobile) sidebarToggle.classList.add('dialog-visible');
-    
+
     // if on mobile,
     // change status bar color
     if (isMobile) {
-      
+
       if (body.classList.contains('expanded')) {
-        
+
         document.querySelector('meta[name="theme-color"]').content = '#1e2028';
-        
+
       } else {
-        
+
         document.querySelector('meta[name="theme-color"]').content = '#2b303b';
-        
+
       }
-      
+
     }
-    
+
     // add confirm button listener
     dialogConfirm.onclick = async (e) => {
-            
+
       if (confirmHandler) await confirmHandler(e);
       resolve(true);
-      
+
     };
-    
+
     // add cancel button listener
     dialogCancel.onclick = () => {
-      
+
       hideDialog();
       resolve(false);
-      
+
     };
 
     // add dialog background click listener
     dialogBackground.onclick = () => {
-      
+
       hideDialog();
       resolve(false);
-      
+
     };
-    
+
   });
-  
+
 }
 
 let hideDialog = () => {
-  
+
   // hide dialog
   dialogWrapper.classList.remove('visible');
-  
+
   // if on desktop, show sidebar toggle
   if (!isMobile) sidebarToggle.classList.remove('dialog-visible');
-  
+
   // if on mobile,
   // change status bar color
   if (isMobile) {
@@ -257,7 +257,7 @@ let hideDialog = () => {
     }
 
   }
-  
+
 }
 
 
@@ -267,19 +267,19 @@ let hideDialog = () => {
 let isMobile = false;
 
 if (navigator.userAgentData
-    && navigator.userAgentData.mobile) isMobile = true;
+  && navigator.userAgentData.mobile) isMobile = true;
 
 if (navigator.userAgent
-    && navigator.userAgent.includes('Mobile')) isMobile = true;
+  && navigator.userAgent.includes('Mobile')) isMobile = true;
 
 let isSafari = false;
 
 if (navigator.userAgentData
-    && navigator.userAgentData.platform === 'iOS') isSafari = true;
+  && navigator.userAgentData.platform === 'iOS') isSafari = true;
 
 if (navigator.userAgent
-    && isMobile
-    && /^((?!chrome|android).)*safari/i.test(navigator.userAgent)) isSafari = true;
+  && isMobile
+  && /^((?!chrome|android).)*safari/i.test(navigator.userAgent)) isSafari = true;
 
 const isMac = navigator.platform.includes('Mac');
 const isWindows = navigator.platform.includes('Win');
@@ -313,13 +313,13 @@ if (isMac) {
 }
 
 if (isEmbed) {
-  
+
   body.classList.add('embed');
-  
+
 }
 
 window.matchMedia('(orientation: landscape)').addEventListener('change', (e) => {
-  
+
   isLandscape = e.matches;
 
 });
@@ -333,7 +333,7 @@ window.addEventListener('offline', () => { isOffline = true });
 let isPersistStorage = false;
 
 let checkPersistStorage = async () => {
-  
+
   if (navigator.storage && navigator.storage.persist) {
 
     isPersistStorage = await navigator.storage.persisted();
@@ -346,7 +346,7 @@ let checkPersistStorage = async () => {
     }
 
   }
-  
+
 }
 
 checkPersistStorage();
@@ -354,15 +354,15 @@ checkPersistStorage();
 
 // escape HTML
 let escapeHTML = (str) => {
-  
+
   const p = document.createElement('p');
   p.appendChild(document.createTextNode(str));
-  
+
   let resp = p.innerHTML;
   resp = resp.replaceAll(/"/g, "&quot;").replaceAll(/'/g, "&#039;");
-  
+
   return resp;
-  
+
 }
 
 
@@ -374,9 +374,9 @@ let encodeUnicode = (str) => {
   // then we convert the percent encodings into raw bytes which
   // can be fed into btoa
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
-      function toSolidBytes(match, p1) {
-          return String.fromCharCode('0x' + p1);
-  }));
+    function toSolidBytes(match, p1) {
+      return String.fromCharCode('0x' + p1);
+    }));
 
 }
 
@@ -462,19 +462,19 @@ let moveElToEl = (originEl, destEl, boundryMargin = null, margin = null, boundry
 
   // get bounding box of dest element
   const rect = destEl.getBoundingClientRect(),
-        destHeight = destEl.clientHeight;
+    destHeight = destEl.clientHeight;
 
   // get bounding box of origin element
   const originHeight = originEl.clientHeight,
-        originWidth = originEl.clientWidth;
+    originWidth = originEl.clientWidth;
 
 
   // define window constraints
   // (stop moving element when it goes offscreen)
   let maxTop = window.innerHeight,
-      minTop = -originHeight,
-      maxLeft = window.innerWidth,
-      minLeft = -originWidth;
+    minTop = -originHeight,
+    maxLeft = window.innerWidth,
+    minLeft = -originWidth;
 
 
   // if defined boundry element,
@@ -502,25 +502,25 @@ let moveElToEl = (originEl, destEl, boundryMargin = null, margin = null, boundry
 
 
   let destTop = rect.top + destHeight,
-      destLeft = rect.left;
-      
-      
+    destLeft = rect.left;
+
+
   // add margin
   if (margin) {
-    
+
     if (margin.top) destTop = destTop + margin.top;
-    
+
     if (margin.left) destLeft = destLeft + margin.left;
-    
+
   }
-  
+
 
   // check if element is outside window
   if (maxTop < destTop) destTop = maxTop;
   if (minTop > destTop) destTop = minTop;
   if (maxLeft < destLeft) destLeft = maxLeft;
   if (minLeft > destLeft) destLeft = minLeft;
-  
+
 
   originEl.style.top = destTop + 'px';
   originEl.style.left = destLeft + 'px';
@@ -534,15 +534,15 @@ let moveElToMouse = (originEl, mouseEvent, boundryMargin = null, boundryEl = nul
 
   // get bounding box of origin element
   const originHeight = originEl.clientHeight,
-        originWidth = originEl.clientWidth;
+    originWidth = originEl.clientWidth;
 
 
   // define window constraints
   // (stop moving element when it goes offscreen)
   let maxTop = window.innerHeight,
-      minTop = -originHeight,
-      maxLeft = window.innerWidth,
-      minLeft = -originWidth;
+    minTop = -originHeight,
+    maxLeft = window.innerWidth,
+    minLeft = -originWidth;
 
 
   // if defined boundry element,
@@ -570,7 +570,7 @@ let moveElToMouse = (originEl, mouseEvent, boundryMargin = null, boundryEl = nul
 
 
   let destTop = mouseEvent.clientY,
-      destLeft = mouseEvent.clientX;
+    destLeft = mouseEvent.clientX;
 
   // check if element is outside window
   if (maxTop < destTop) destTop = maxTop;
@@ -587,16 +587,16 @@ let moveElToMouse = (originEl, mouseEvent, boundryMargin = null, boundryEl = nul
 
 // check if element is in view
 let elInView = (el) => {
-  
+
   const rect = el.getBoundingClientRect();
   const elemTop = rect.top;
   const elemLeft = rect.left;
-  
+
   const isVisible = (elemTop < window.innerHeight &&
-                     elemLeft < window.innerWidth);
-  
+    elemLeft < window.innerWidth);
+
   return isVisible;
-  
+
 }
 
 
@@ -619,9 +619,9 @@ let setAttr = (element, item, value) => {
 let validateString = (string) => {
 
   const acceptableChars = 'abcdefghijklmnopqrstuvwxyz' +
-                          'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
-                          '0123456789' +
-                          '-_.';
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+    '0123456789' +
+    '-_.';
 
   const stringArr = string.split('').filter(char => !acceptableChars.includes(char));
 
@@ -635,8 +635,8 @@ let hashCode = (string) => {
   let hash = 0, i, chr;
   if (string.length === 0) return hash;
   for (i = 0; i < string.length; i++) {
-    chr   = string.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
+    chr = string.charCodeAt(i);
+    hash = ((hash << 5) - hash) + chr;
     hash |= 0; // convert to 32bit integer
   }
   return hash;
@@ -656,49 +656,49 @@ let generateSHA = (len) => {
 
 // load a script
 let loadScript = (src, inEl = document.body) => {
-  
+
   return new Promise((resolve, reject) => {
-    
+
     let s = document.createElement('script');
     s.src = src;
-    
+
     s.onload = () => {
       inEl.removeChild(s);
       resolve();
     };
-    
+
     s.onerror = () => {
       inEl.removeChild(s);
       reject();
     };
-    
+
     inEl.appendChild(s);
-    
+
   });
-  
+
 }
 
 // load a stylesheet
 let loadStyleSheet = (href, inEl = document.head) => {
-  
+
   return new Promise((resolve, reject) => {
-    
+
     let s = document.createElement('link');
     s.href = href;
     s.rel = 'stylesheet';
-    
+
     s.onload = () => {
       resolve();
     };
-    
+
     s.onerror = () => {
       reject();
     };
-    
+
     inEl.appendChild(s);
-    
+
   });
-  
+
 }
 
 
@@ -717,13 +717,13 @@ let asyncThread = (callback, time) => {
 }
 
 let asyncForEach = async (array, callback) => {
-  
+
   for (let index = 0; index < array.length; index++) {
-    
+
     await callback(array[index], index, array);
-    
+
   }
-  
+
 }
 
 
@@ -744,20 +744,20 @@ Element.prototype.on = (events, callback, passive) => {
 
 // select all of element
 let selectAllCaret = (el) => {
-  
+
   // focus element
   el.focus();
 
   const s = window.getSelection();
-  
+
   // select all
   s.selectAllChildren(el);
-  
+
 }
 
 // focus caret to end of element
 let focusCaretToEnd = (el) => {
-  
+
   // focus element
   el.focus();
 
@@ -771,54 +771,54 @@ let focusCaretToEnd = (el) => {
     s.setBaseAndExtent(nodes[0], nodes[0].length, nodes[0], nodes[0].length);
 
   }
-  
+
 }
 
 
 // copy
 let copy = async (text) => {
-  
+
   try {
-    
+
     await navigator.clipboard.writeText(text);
-    
-  } catch(e) {
-    
+
+  } catch (e) {
+
     const textarea = document.createElement('textarea');
     textarea.value = text;
-    
+
     // avoid scrolling to bottom
     textarea.style.top = 0;
     textarea.style.left = 0;
     textarea.style.position = 'fixed';
-  
+
     body.appendChild(textarea);
     textarea.focus();
     textarea.select();
-    
+
     document.execCommand('copy');
-    
+
     body.removeChild(textarea);
-    
+
   }
-  
+
 }
 
 // read clipboard
 let readClipboard = async () => {
-  
+
   try {
-    
+
     const text = await navigator.clipboard.readText();
 
     return text;
-    
-  } catch(e) {
-    
+
+  } catch (e) {
+
     return {
       error: 'Permission declined'
     };
-    
+
   }
 
 }
@@ -828,7 +828,7 @@ let readClipboard = async () => {
 
 try {
   axios = axios;
-} catch(e) {
+} catch (e) {
   window.axios = null;
 }
 
@@ -845,7 +845,7 @@ axios = {
               } else {
                 resolve(this.responseText);
               }
-            } catch(e) {
+            } catch (e) {
               resolve();
             }
           } else if (this.responseText) {
@@ -855,7 +855,7 @@ axios = {
               } else {
                 resolve(this.responseText);
               }
-            } catch(e) {}
+            } catch (e) { }
           }
         };
         xmlhttp.onerror = function () {
@@ -866,14 +866,14 @@ axios = {
               } else {
                 resolve(this.responseText);
               }
-            } catch(e) {}
+            } catch (e) { }
           }
         };
 
         xmlhttp.open('GET', url, true);
         if (token) xmlhttp.setRequestHeader('Authorization', 'token ' + token);
         xmlhttp.send();
-      } catch(e) { reject(e) }
+      } catch (e) { reject(e) }
     });
   },
   'post': (url, token, data) => {
@@ -884,7 +884,7 @@ axios = {
           if (this.readyState == 4 && String(this.status).startsWith('2')) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {
+            } catch (e) {
               resolve();
             }
           }
@@ -893,7 +893,7 @@ axios = {
         xmlhttp.setRequestHeader('Accept', 'application/json');
         xmlhttp.setRequestHeader('Authorization', 'token ' + token);
         xmlhttp.send(JSON.stringify(data));
-      } catch(e) { reject(e) }
+      } catch (e) { reject(e) }
     });
   },
   'put': (url, token, data) => {
@@ -904,7 +904,7 @@ axios = {
           if (this.readyState == 4 && String(this.status).startsWith('2')) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {
+            } catch (e) {
               resolve();
             }
           }
@@ -912,7 +912,7 @@ axios = {
         xmlhttp.open('PUT', url, true);
         xmlhttp.setRequestHeader('Authorization', 'token ' + token);
         xmlhttp.send(JSON.stringify(data));
-      } catch(e) { reject(e) }
+      } catch (e) { reject(e) }
     });
   },
   'patch': (url, token) => {
@@ -923,26 +923,26 @@ axios = {
           if (this.readyState == 4 && String(this.status).startsWith('2')) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {
+            } catch (e) {
               resolve();
             }
           } else if (this.responseText) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {}
+            } catch (e) { }
           }
         };
         xmlhttp.onerror = function () {
           if (this.responseText) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {}
+            } catch (e) { }
           }
         };
         xmlhttp.open('PATCH', url, true);
         if (token) xmlhttp.setRequestHeader('Authorization', 'token ' + token);
         xmlhttp.send();
-      } catch(e) { reject(e) }
+      } catch (e) { reject(e) }
     });
   },
   'delete': (url, token) => {
@@ -953,26 +953,26 @@ axios = {
           if (this.readyState == 4 && String(this.status).startsWith('2')) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {
+            } catch (e) {
               resolve();
             }
           } else if (this.responseText) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {}
+            } catch (e) { }
           }
         };
         xmlhttp.onerror = function () {
           if (this.responseText) {
             try {
               resolve(JSON.parse(this.responseText));
-            } catch(e) {}
+            } catch (e) { }
           }
         };
         xmlhttp.open('DELETE', url, true);
         if (token) xmlhttp.setRequestHeader('Authorization', 'token ' + token);
         xmlhttp.send();
-      } catch(e) { reject(e) }
+      } catch (e) { reject(e) }
     });
   }
 };
