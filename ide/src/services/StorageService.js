@@ -1,3 +1,5 @@
+import * as StorageUtils from '../utils/localStorage';
+
 /**
  * Storage service for handling local storage operations
  */

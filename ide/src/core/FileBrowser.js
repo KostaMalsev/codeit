@@ -21,6 +21,8 @@ import Dialog from '../ui/Dialog';
 import ContextMenu from '../ui/ContextMenu';
 import SearchBar from '../ui/SearchBar';
 
+
+
 /**
  * Main FileBrowser class that orchestrates the application
  */
