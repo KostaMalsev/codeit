@@ -9,13 +9,13 @@ function changePushingState(to, pendingPromise) {
 
     pendingPromise = pendingPromise ?? null;
 
-    window.addEventListener('beforeunload', beforeUnloadListener, {capture: true});
+    window.addEventListener('beforeunload', beforeUnloadListener, { capture: true });
 
   } else {
 
     pendingPromise = null;
 
-    window.removeEventListener('beforeunload', beforeUnloadListener, {capture: true});
+    window.removeEventListener('beforeunload', beforeUnloadListener, { capture: true });
 
   }
 
@@ -41,10 +41,10 @@ let git = {
     // get repository branch
     let [repoName, branch] = repo.split(':');
 
-    if (branch) branch = '?ref='+ branch;
+    if (branch) branch = '?ref=' + branch;
     else branch = '';
 
-    query += '/repos/'+ user +'/'+ repoName +'/git/blobs/'+ sha + branch;
+    query += '/repos/' + user + '/' + repoName + '/git/blobs/' + sha + branch;
 
     // get the query
     const resp = await axios.get(query, gitToken);
@@ -63,96 +63,96 @@ let git = {
     // get repository branch
     let [repoName, branch] = repo.split(':');
 
-    if (branch) branch = '?ref='+ branch;
+    if (branch) branch = '?ref=' + branch;
     else branch = '';
-  
+
     query += '/repos/' + user + '/' + repoName +
-             '/contents/' + contents
-             + '/' + fileName +
-             branch;
-  
+      '/contents/' + contents
+      + '/' + fileName +
+      branch;
+
     // get the query
     const resp = await axios.get(query, gitToken);
-  
+
     return resp;
 
   },
-  
+
   // get public file content
   'getPublicFile': async (treeLoc, fileName) => {
-    
+
     // map tree location
     let query = 'https://raw.githubusercontent.com';
     const [user, repo, contents] = treeLoc;
 
     // get repository branch
     let [repoName, branch] = repo.split(':');
-  
+
     query += '/' + user + '/' + repoName +
-             '/' + branch +
-             '/' + contents + '/' + fileName;
-  
+      '/' + branch +
+      '/' + contents + '/' + fileName;
+
     // get the query
     const resp = await axios.get(query, '', true);
-    
+
     return resp;
-        
+
   },
 
   // get public file content as ReadableStream
   'getPublicFileAsStream': async (treeLoc, fileName) => {
-    
+
     // map tree location
     let query = 'https://raw.githubusercontent.com';
     const [user, repo, contents] = treeLoc;
 
     // get repository branch
     let [repoName, branch] = repo.split(':');
-  
+
     query += '/' + user + '/' + repoName +
-             '/' + branch +
-             '/' + contents + '/' + fileName;
-  
+      '/' + branch +
+      '/' + contents + '/' + fileName;
+
     // get the query
     const resp = await fetch(query);
-    
+
     // if received an error
     if (String(resp.status).startsWith('4')) {
-      
+
       return {
         errorCode: resp.status
       };
-      
+
     }
-    
-    
+
+
     // get data from response
-    
+
     const reader = resp.body.getReader();
     let buffer = [];
-    
+
     async function readChunk() {
-      
+
       const chunk = await reader.read();
-      
+
       // if finished reading, return
       if (chunk.done) return;
-      
+
       // add new chunk to buffer
       buffer = new Uint8Array([...buffer, ...chunk.value]);
-      
+
       // read next chunk
       return readChunk();
-      
+
     }
-    
+
     await readChunk();
 
     return buffer;
-    
+
   },
-  
-   // get public LFS file content as ReadableStream
+
+  // get public LFS file content as ReadableStream
   'getPublicLFSFileAsStream': async (treeLoc, fileName) => {
 
     // map tree location
@@ -161,28 +161,28 @@ let git = {
 
     // get repository branch
     let [repoName, branch] = repo.split(':');
-  
+
     query += '/' + user + '/' + repoName +
-             '/' + branch +
-             '/' + contents + '/' + fileName;
-  
+      '/' + branch +
+      '/' + contents + '/' + fileName;
+
     // get the query
     const resp = await fetch(query);
-    
+
     // if received an error
     if (String(resp.status).startsWith('4')) {
-      
+
       return {
         errorCode: resp.status
       };
-      
+
     }
 
-    
+
     const buffer = await resp.arrayBuffer();
 
     return buffer;
-    
+
   },
 
   // get items in tree
@@ -198,12 +198,12 @@ let git = {
       // get repository branch
       let [repoName, branch] = repo.split(':');
 
-      if (branch) branch = '?ref='+ branch;
+      if (branch) branch = '?ref=' + branch;
       else branch = '';
 
       query += '/repos/' + user + '/' + repoName +
-               '/contents' + contents +
-               branch;
+        '/contents' + contents +
+        branch;
 
     } else { // else, show all repositories
 
@@ -217,7 +217,7 @@ let git = {
     return resp;
 
   },
-  
+
   // get a repository
   'getRepo': async (treeLoc) => {
 
@@ -246,7 +246,7 @@ let git = {
 
     const [repoName] = repo.split(':');
 
-    query += '/repos/'+ user +'/'+ repoName +'/branches';
+    query += '/repos/' + user + '/' + repoName + '/branches';
 
     // get the query
     const resp = await axios.get(query, gitToken);
@@ -265,9 +265,9 @@ let git = {
     let [repoName, branch] = repo.split(':');
 
     const query = 'https://api.github.com/repos' +
-                  '/' + user + '/' + repoName +
-                  '/contents' + contents +
-                  '/' + commit.file.name;
+      '/' + user + '/' + repoName +
+      '/contents' + contents +
+      '/' + commit.file.name;
 
     let commitData;
 
@@ -340,7 +340,7 @@ let git = {
     const [user, repo] = treeLoc;
     const [repoName] = repo.split(':');
 
-    query += '/repos/'+ user +'/'+ repoName +'/git/refs';
+    query += '/repos/' + user + '/' + repoName + '/git/refs';
 
     // create new branch
     const branchData = {
@@ -369,7 +369,7 @@ let git = {
     const [repoName] = repo.split(':');
 
     const query = 'https://api.github.com/repos' +
-                  '/' + user + '/' + repoName + '/forks';
+      '/' + user + '/' + repoName + '/forks';
 
     // change pushing state
     changePushingState(true);
@@ -392,8 +392,8 @@ let git = {
     const [repoName] = repo.split(':');
 
     const query = 'https://api.github.com/repos' +
-                  '/' + user + '/' + repoName +
-                  '/collaborators/' + usernameToInvite;
+      '/' + user + '/' + repoName +
+      '/collaborators/' + usernameToInvite;
 
     // change pushing state
     changePushingState(true);
@@ -416,16 +416,16 @@ let git = {
     const [repoName] = repo.split(':');
 
     let query = 'https://api.github.com/user' +
-                '/repository_invitations';
+      '/repository_invitations';
 
     // get the query
     const invites = await axios.get(query, gitToken);
 
     // find repo invite
     const repoInvite = invites.filter(invite =>
-                                      invite.repository.full_name ===
-                                      (user + '/' + repoName)
-                                     );
+      invite.repository.full_name ===
+      (user + '/' + repoName)
+    );
 
     // if invite exists
     if (repoInvite.length > 0) {
@@ -454,13 +454,108 @@ let git = {
     const [repoName] = repo.split(':');
 
     const query = 'https://api.github.com/repos' +
-                  '/' + user + '/' + repoName;
+      '/' + user + '/' + repoName;
 
     // dispatch request with query
     await axios.delete(query, gitToken);
 
     return;
 
+  },
+
+  // Function to create a folder and push a file to it
+  'createFolderAndPushFile': async (commit) => {
+    // map file location in tree
+    const [user, repo, baseContents] = commit.file.dir.split(',');
+
+    // get repository branch
+    let [repoName, branch] = repo.split(':');
+
+    // Construct the new folder path
+    const folderPath = baseContents + '/' + commit.folder.name;
+
+    // Construct the file path including the new folder
+    const filePath = folderPath + '/' + commit.file.name;
+
+    const query = 'https://api.github.com/repos' +
+      '/' + user + '/' + repoName +
+      '/contents' + filePath;
+
+    // Prepare commit data
+    const commitData = {
+      message: commit.message || `Create folder ${commit.folder.name} and add ${commit.file.name}`,
+      content: commit.file.content,
+      branch: branch
+    };
+
+    // If updating an existing file, include its SHA
+    if (commit.file.sha) {
+      commitData.sha = commit.file.sha;
+    }
+
+    // Change pushing state
+    changePushingState(true);
+
+    try {
+      // Put the query - this will create both the folder and the file in one operation
+      const resp = await axios.put(query, commitData, {
+        headers: {
+          'Authorization': `token ${gitToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Return the new file's SHA
+      return resp.data.content.sha;
+    } catch (error) {
+      console.error("Error creating folder and pushing file:", error);
+      throw error;
+    } finally {
+      // Always reset pushing state
+      changePushingState(false);
+    }
+  },
+
+  // Original push function for reference
+  'push': async (commit) => {
+    // map file location in tree
+    const [user, repo, contents] = commit.file.dir.split(',');
+
+    // get repository branch
+    let [repoName, branch] = repo.split(':');
+
+    const query = 'https://api.github.com/repos' +
+      '/' + user + '/' + repoName +
+      '/contents' + contents +
+      '/' + commit.file.name;
+
+    let commitData;
+
+    if (commit.file.sha) {
+      commitData = {
+        message: commit.message,
+        content: commit.file.content,
+        sha: commit.file.sha,
+        branch: branch
+      };
+    } else {
+      commitData = {
+        message: commit.message,
+        content: commit.file.content,
+        branch: branch
+      };
+    }
+
+    // change pushing state
+    changePushingState(true);
+
+    // put the query
+    const resp = await axios.put(query, gitToken, commitData);
+
+    // change pushing state
+    changePushingState(false);
+
+    return resp.content.sha;
   }
 
 };
