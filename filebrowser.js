@@ -4103,22 +4103,37 @@ function createNewFolderInHTML() {
         folderEl.querySelector('.name').textContent = folderName;
         
         // Create a placeholder file within the folder to create it in Git
-        // In Git, folders only exist with files in them
         const placeholderFileName = '.gitkeep';
         const commitMessage = `Create folder: ${folderName}`;
         
-        // Create the folder by creating a file inside it
-        await createFolderInGit(folderName, placeholderFileName, commitMessage);
-        
-        // Wait for push animation, then navigate to the new folder
-        window.setTimeout(() => {
-          // Change location to the new folder
-          treeLoc[2] += '/' + folderName;
-          saveTreeLocLS(treeLoc);
-
-          // Render sidebar with new location
-          renderSidebarHTML();
-        }, (pushAnimDuration * 1000));
+        try {
+          // Create the folder by creating a file inside it
+          await createFolderInGit(folderName, placeholderFileName, commitMessage);
+          
+          // Update the folder element to be clickable
+          folderEl.addEventListener('click', (e) => {
+            // Change location to the new folder
+            treeLoc[2] += '/' + folderName;
+            saveTreeLocLS(treeLoc);
+            
+            // Render sidebar with new location
+            renderSidebarHTML();
+          });
+          
+          // Remove push wrapper - folders don't need it once created
+          if (folderEl.querySelector('.push-wrapper')) {
+            folderEl.querySelector('.push-wrapper').remove();
+          }
+          
+          showMessage('Folder created successfully!');
+        } catch (error) {
+          console.error('Error creating folder:', error);
+          showMessage('Failed to create folder.');
+          
+          // Remove the folder element from the UI if creation failed
+          folderEl.classList.add('hidden');
+          setTimeout(() => folderEl.remove(), 300);
+        }
       }
     }
   } else {
@@ -4136,16 +4151,17 @@ async function createFolderInGit(folderName, placeholderFileName, commitMessage)
   const [user, repo, contents] = treeLoc;
   const [repoName, branch] = repo.split(':');
   
-  // Prepare the path for the new file - we create a .gitkeep file by convention
-  const filePath = contents + '/' + folderName + '/' + placeholderFileName;
+  // Create the full path for the new file
+  const folderPath = contents === '' ? folderName : contents + '/' + folderName;
+  const filePath = folderPath + '/' + placeholderFileName;
   
-  // Create empty content (or you could add a small readme about the folder's purpose)
+  // Create empty content - just a placeholder to create the folder structure
   const fileContent = encodeUnicode('');
   
   // Create a commit for the new file
   const commitFile = {
     name: placeholderFileName,
-    dir: [user, repo, contents + '/' + folderName].join(','),
+    dir: [user, repo, folderPath].join(','),
     content: fileContent
   };
   
@@ -4155,7 +4171,12 @@ async function createFolderInGit(folderName, placeholderFileName, commitMessage)
   };
   
   // Push the file to Git to create the folder
-  return await git.push(commit);
+  try {
+    return await git.push(commit);
+  } catch (error) {
+    console.error('Error pushing to Git:', error);
+    throw error;
+  }
 }
 
 // 4. Update the add button click handler to show the menu when in a repository
