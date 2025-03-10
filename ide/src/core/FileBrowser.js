@@ -17,7 +17,7 @@ import LiveView from '../components/LiveView.js';
 import BottomFloat from '../components/BottomFloat.js';
 
 // Import UI components
-import UI from './UI';
+import UI from './UI.js';
 import Dialog from '../ui/Dialog.js';
 import ContextMenu from '../ui/ContextMenu.js';
 import SearchBar from '../ui/SearchBar.js';
