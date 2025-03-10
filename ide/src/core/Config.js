@@ -5,7 +5,8 @@ class Config {
     constructor() {
         // Application information
         this.version = '1.0.0';
-        this.isDev = process.env.NODE_ENV === 'development';
+        //this.isDev = process.env.NODE_ENV === 'development';
+        this.isDev = (window.location.hostname === 'dev.codeit.codes');
 
         // Timing constants
         this.pushAnimDuration = 0.8; // seconds
