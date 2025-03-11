@@ -220,9 +220,9 @@ class Sidebar {
 
     /**
      * Toggle the sidebar visibility
-     * @param {boolean} open - Whether to open the sidebar
+     * @param {boolean} closed - Whether the sidebar is closed the sidebar
      */
-    toggle(open) {
+    toggle(closed) {
         if (this.sidebarTimeout) {
             window.clearTimeout(this.sidebarTimeout);
         }
@@ -237,7 +237,7 @@ class Sidebar {
             }, 400);
         }
 
-        if (open) {
+        if (closed) {
             document.body.classList.add('expanded');
 
             if (this.fileBrowser.config.isMobile) {
@@ -261,7 +261,7 @@ class Sidebar {
             }
         }
 
-        this.isVisible = open;
+        this.isVisible = !closed;
     }
 
     /**
