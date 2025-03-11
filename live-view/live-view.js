@@ -1,6 +1,6 @@
 
 // setup live view
-async function setupLiveView(liveToggle) {
+async function setupLiveView(liveToggle, selectedFile) {
 
   let prevSelectedFile;
 

@@ -151,7 +151,7 @@ class LiveView {
     }
 
     async setup() {
-        await setupLiveView(this.liveToggle);
+        await setupLiveView(this.liveToggle, this.fileBrowser.selectedFile);
     }
 
     /**
