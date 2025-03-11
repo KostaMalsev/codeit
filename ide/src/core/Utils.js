@@ -19,6 +19,8 @@ class Utils {
      */
     decodeUnicode(content) {
 
+        if (content == undefined || content == '') return '';
+
         // going backwards: from bytestream, to percent-encoding, to original string
         return decodeURIComponent(atob(str).split('').map(function (c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
