@@ -13,74 +13,74 @@ let workerClientId;
 async function setupWorkerChannel() {
 
   // register service worker
-  
+
   workerInstallPromise = navigator.serviceWorker.register('/service-worker.js');
-  
+
   await workerInstallPromise;
-  
-  
+
+
   let numOfRequests = 0;
-  
+
   async function pingWorkerForClientId() {
-    
+
     // get client ID from worker
     let resp = await axios.get('/worker/getClientId', '', true);
-    
+
     try {
       resp = JSON.parse(resp);
-    } catch(e) {
+    } catch (e) {
       resp = '';
       console.log('%c[Client] Pinged ServiceWorker for installation', 'color: #80868b');
     }
-    
-    if (numOfRequests < 100) {
-      
+
+    if (numOfRequests < 3) { //100 TBD@@
+
       if (!resp || !resp.clientId) {
-        
+
         numOfRequests++;
         return await pingWorkerForClientId();
-        
+
       } else {
-        
+
         return resp.clientId;
-        
+
       }
-      
+
     } else {
-      
+
       return null;
-      
+
     }
-    
+
   }
-  
+
   // ping worker for client ID
-  
+
   workerInstallPromise = pingWorkerForClientId();
-  
+
   workerClientId = await workerInstallPromise;
-  
+
   workerInstallPromise = null;
-  
-  
+
+
   // create worker channel
   workerChannel = new BroadcastChannel('worker-channel');
-  
-  
+
+
   // add worker channel listener
   workerChannel.addEventListener('message', async (event) => {
-        
+
     // if message is for current client
     if (event.data.toClient === workerClientId) {
 
       // if recived request
       if (event.data.type === 'request') {
-  
+
         // send request to /live-view/live-view.js
         // for handling
-        const {fileContent, respStatus} =
-              await handleLiveViewRequest(event.data.url);
-  
+        const { fileContent, respStatus } =
+          await handleLiveViewRequest(event.data.url);
+
         // send response back to worker
         workerChannel.postMessage({
           url: event.data.url,
@@ -89,42 +89,42 @@ async function setupWorkerChannel() {
           fromClient: workerClientId,
           type: 'response'
         });
-  
+
       } else if (event.data.type === 'reload') { // if recived reload request
-  
+
         // reload page
         window.location.reload();
-  
+
       } else if (event.data.type === 'message') { // if recived message
-  
+
         // log message
         console.debug(event.data.message);
-  
+
       }
-      
+
     }
 
   });
-  
-  
+
+
   window.addEventListener('load', () => {
-    
+
     if (getStorage('workerDevLogs')) {
-            
+
       workerChannel.postMessage({
         type: 'enableDevLogs'
       });
-      
+
     }
-    
+
     if (window.location.hostname === 'dev.codeit.codes') {
-      
+
       workerChannel.postMessage({
         type: 'updateWorker'
       });
-      
+
     }
-    
+
   });
 
 }
@@ -132,16 +132,16 @@ async function setupWorkerChannel() {
 
 // enable service worker logs
 function enableWorkerLogs() {
-  
+
   setStorage('workerDevLogs', 'true');
   window.location.reload();
-  
+
 }
 
 
 try {
   axios = axios;
-} catch(e) {
+} catch (e) {
   window.axios = null;
 }
 
@@ -158,7 +158,7 @@ axios = {
               } else {
                 resolve(this.responseText);
               }
-            } catch(e) {
+            } catch (e) {
               resolve();
             }
           } else if (this.responseText) {
@@ -168,7 +168,7 @@ axios = {
               } else {
                 resolve(this.responseText);
               }
-            } catch(e) {}
+            } catch (e) { }
           }
         };
         xmlhttp.onerror = function () {
@@ -179,13 +179,13 @@ axios = {
               } else {
                 resolve(this.responseText);
               }
-            } catch(e) {}
+            } catch (e) { }
           }
         };
 
         xmlhttp.open('GET', url, true);
         xmlhttp.send();
-      } catch(e) { reject(e) }
+      } catch (e) { reject(e) }
     });
   }
 };
