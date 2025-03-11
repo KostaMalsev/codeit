@@ -6,7 +6,7 @@ class FileExplorer {
         this.fileBrowser = fileBrowser;
 
         // DOM elements
-        this.element = document.querySelector('.file-wrapper');
+        this.element = document.querySelector('.files');
         this.sidebar = document.querySelector('.sidebar');
         this.addButton = document.querySelector('.add');
         this.header = document.querySelector('.header');
