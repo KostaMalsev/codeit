@@ -247,7 +247,7 @@ class FileBrowser {
             eclipsed: false
         };
         //TBD@@ update global variable for live-view purposes:
-        selectedFile = { ...this.selectedFile };
+        update_internal_selectedFile(this.selectedFile)
 
         // Save to storage
         this.storageService.setItem('selectedFile', JSON.stringify(this.selectedFile));

@@ -1,3 +1,9 @@
+selectedFile = {}
+
+function update_internal_selectedFile(sFile) { //@@TBD
+  selectedFile = { ...sFile };
+}
+
 
 // setup live view
 async function setupLiveView(liveToggle, selectedFile) {
