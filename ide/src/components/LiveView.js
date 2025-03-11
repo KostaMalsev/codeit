@@ -158,6 +158,8 @@ class LiveView {
      * Update the live view arrow
      */
     updateLiveViewArrow() {
+        updateLiveViewArrow();//Defined in live-view.js
+
         // Implementation for updating the live view arrow
         // This would typically adjust the position of an arrow icon
         // based on the current state of the live view
