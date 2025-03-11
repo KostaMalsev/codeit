@@ -29,6 +29,7 @@ class Sidebar {
             this.showIntro();
         } else {
             this.fileBrowser.fileExplorer.renderExplorer();
+            document.body.classList.add('expanded');//TBD@@ show always expanded
         }
     }
 

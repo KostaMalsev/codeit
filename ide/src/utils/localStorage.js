@@ -66,6 +66,7 @@ export function loadFromStorage(fileBrowser) {
 
     // Set up components
     setupComponents(fileBrowser);
+
 }
 
 /**
