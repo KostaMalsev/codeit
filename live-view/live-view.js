@@ -5,7 +5,7 @@ async function setupLiveView(liveToggle) {
   let prevSelectedFile;
 
   // if URL has a file
-  if (linkData.file) {
+  if (linkData && linkData.file) {
 
     // get file from URL
     const fileName = linkData.file;
@@ -64,7 +64,7 @@ async function setupLiveView(liveToggle) {
 
 
   // if URL has a directory
-  if (linkData.dir) {
+  if (linkData && linkData.dir) {
 
     // don't transition
     body.classList.add('notransition');
@@ -82,7 +82,7 @@ async function setupLiveView(liveToggle) {
 
       // open sidebar
       toggleSidebar(true);
-      saveSidebarStateLS();
+      saveSidebarStateLS();//TBD@@ saving sidebar state from not sidebar class
 
     }
 
@@ -139,7 +139,7 @@ async function setupLiveView(liveToggle) {
   }
 
   // if URL has a file
-  if (linkData.file) {
+  if (linkData && linkData.file) {
 
     // get file from URL
     const fileName = linkData.file;
@@ -207,8 +207,8 @@ async function setupLiveView(liveToggle) {
     // and is modified
     // note: this fixes a bug where the modified file
     //       isn't updated yet as it's still selected
-    if (prevSelectedFile.dir === treeLoc.join() &&
-      prevSelectedFile.name === fileName &&
+    if ((prevSelectedFile && (prevSelectedFile.dir === treeLoc.join())) &&
+      (prevSelectedFile && (prevSelectedFile.name === fileName)) &&
       modifiedFiles[prevSelectedFile.sha]) {
 
       // set file to selected file
@@ -287,7 +287,7 @@ async function setupLiveView(liveToggle) {
 
 
     // if URL has a live view flag
-    if (linkData.openLive) {
+    if (linkData && linkData.openLive) {
 
       // if on mobile device
       if (isMobile) {
