@@ -150,6 +150,10 @@ class LiveView {
         }
     }
 
+    async setupLiveView() {
+        await setupLiveView(this.liveToggle);
+    }
+
     /**
      * Update the live view arrow
      */
