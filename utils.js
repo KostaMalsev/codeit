@@ -840,7 +840,7 @@ axios = {
         xmlhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
             // Ignore 401 errors
-            if (this.status === 401) {
+            if (this.status === 404) {
               resolve();
               return;
             }
@@ -868,7 +868,7 @@ axios = {
         };
         xmlhttp.onerror = function () {
           // Ignore 401 errors
-          if (this.status === 401) {
+          if (this.status === 404) {
             resolve();
             return;
           }
@@ -897,7 +897,7 @@ axios = {
         xmlhttp.onreadystatechange = function () {
           if (this.readyState == 4) {
             // Ignore 401 errors
-            if (this.status === 401) {
+            if (this.status === 404) {
               resolve();
               return;
             }
