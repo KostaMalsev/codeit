@@ -81,6 +81,9 @@ export async function initialize(fileBrowser) {
  * @param {FileBrowser} fileBrowser - The main FileBrowser instance
  */
 function setupMessageListener(fileBrowser) {
+
+    return; //TBD@@
+
     window.addEventListener('message', async (event) => {
         // If received a git code
         if (event.origin === window.location.origin &&
