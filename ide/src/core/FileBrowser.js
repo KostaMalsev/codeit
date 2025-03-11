@@ -104,7 +104,7 @@ class FileBrowser {
         const gitToken = this.storageService.getItem('gitToken');
         const loggedUser = this.storageService.getItem('loggedUser');
 
-        this.isAuthenticated = !!gitToken && !!loggedUser;
+        this.isAuthenticated = !!gitToken; //&& !!loggedUser; //TBD@@ gitToken is anogh.
 
         // If not authenticated and not at repo list, show intro
         if (!this.isAuthenticated && this.treeLoc[1] === '') {
