@@ -44,8 +44,14 @@ export function loadFromStorage(fileBrowser) {
     // Load modified repos
     if (fileBrowser.storageService.getItem('modifiedRepos')) {
         // Load modified repos from storage
+        //const item = fileBrowser.storageService.getItem('modifiedRepos');
+        //fileBrowser.modifiedRepos = Object.fromEntries(JSON.parse(item));
         const item = fileBrowser.storageService.getItem('modifiedRepos');
-        fileBrowser.modifiedRepos = Object.fromEntries(JSON.parse(item));
+        const parsed = JSON.parse(item);
+        const entries = Object.entries(parsed).map(([key, value]) => {
+            return [key, value];
+        });
+        fileBrowser.modifiedRepos = Object.fromEntries(entries);
     } else {
         fileBrowser.modifiedRepos = {};
     }
