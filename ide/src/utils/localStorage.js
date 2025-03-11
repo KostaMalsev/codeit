@@ -51,23 +51,12 @@ export function loadFromStorage(fileBrowser) {
         fileBrowser.modifiedRepos = {};
     }
 
-    // Load tree location
+    // Load tree location //DUPLICATE TO 
     if (fileBrowser.storageService.getItem('tree')) {
-        //const treeLoc = fileBrowser.storageService.getItem('tree').split(',');
-        treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
-
-        /*treeLoc = getStorage('tree') ? getStorage('tree').split(',') : ['', '', ''];
-
-        // if repo dosen't have a branch (legacy treeLoc)
-        if (treeLoc[1] && !treeLoc[1].includes(':')) {
-
-            // add default branch to repo
-            treeLoc[1] += ':main';
-            saveTreeLocLS(treeLoc);
-
-            }
-        */
+        treeLoc = getStorage('tree').split(',');
         fileBrowser.treeLoc = treeLoc;
+    } else {
+        treeLoc = ['', '', ''];
     }
 
     // Set up components

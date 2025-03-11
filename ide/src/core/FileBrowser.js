@@ -153,17 +153,14 @@ class FileBrowser {
      * @returns {Array} The tree location [user, repo, path]
      */
     loadTreeLocation() {
-        const savedLoc = this.storageService.getItem('treeLoc');
 
-        if (savedLoc) {
-            try {
-                return JSON.parse(savedLoc);
-            } catch (e) {
-                console.error('Failed to parse treeLoc', e);
-            }
+        // Load tree location //DUPLICATE TO one at localStorage TBD@@
+        if (this.storageService.getItem('tree')) {
+            treeLoc = this.storageService.getItem('tree').split(',');
+            this.treeLoc = treeLoc;
+        } else {
+            this.treeLoc = ['', '', '']; // Default: [user, repo, path]
         }
-
-        return ['', '', '']; // Default: [user, repo, path]
     }
 
     /**
