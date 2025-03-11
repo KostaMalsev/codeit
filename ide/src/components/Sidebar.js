@@ -13,12 +13,21 @@ class Sidebar {
         this.sidebarBranch = fileBrowser.ui.sidebarBranch;
         this.fileWrapper = fileBrowser.ui.fileWrapper;
 
+        // Search UI elements
+        this.searchInput = fileBrowser.ui.searchInput;
+        this.searchButton = fileBrowser.ui.searchButton;
+        this.searchBack = fileBrowser.ui.searchBack;
+        this.searchClear = fileBrowser.ui.searchClear;
+        this.header = fileBrowser.ui.header;
+        this.addButton = fileBrowser.ui.addButton;
+
         // State
         this.isVisible = this.fileBrowser.storageService.getItem('sidebar') === 'true';
         this.hoveringSidebarToggle = false;
 
         // Setup event listeners
         this.setupEventListeners();
+        this.setupSearchFunctionality();
     }
 
     /**
@@ -159,6 +168,152 @@ class Sidebar {
     }
 
     /**
+     * Setup spotlight search functionality
+     */
+    setupSearchFunctionality() {
+        // Define the openSearch method
+        this.searchInput.openSearch = () => {
+            // clear search input
+            this.searchInput.innerText = '';
+
+            // hide clear button
+            this.searchClear.classList.remove('visible');
+
+            // update add button
+            this.addButton.classList.remove('clear-button-visible');
+
+            this.header.classList.add('searching');
+
+            // focus search input
+            this.searchInput.focus();
+        };
+
+        // open search screen on click of button
+        this.searchButton.addEventListener('click', this.searchInput.openSearch);
+
+        // open search on focus
+        this.searchInput.addEventListener('focus', () => {
+            // if not already searching
+            if (!this.header.classList.contains('searching')) {
+                // open search
+                this.searchInput.openSearch();
+            }
+        });
+
+        // Define the closeSearch method
+        this.searchInput.closeSearch = () => {
+            // show all files
+            let files = this.fileWrapper.querySelectorAll('.item[style="display: none;"]');
+            files.forEach(file => { file.style.display = '' });
+
+            this.header.classList.remove('searching');
+
+            if (document.activeElement === this.searchInput) {
+                this.searchInput.blur();
+            }
+        };
+
+        this.searchBack.addEventListener('click', this.searchInput.closeSearch);
+
+        this.searchInput.addEventListener('blur', () => {
+            // if query is empty
+            if (this.searchInput.textContent === '') {
+                // close search
+                this.searchInput.closeSearch();
+            }
+        });
+
+        // Define the search method
+        this.searchInput.search = () => {
+            if (this.searchInput.innerHTML === '<br>') {
+                this.searchInput.textContent = '';
+            }
+            let query = this.searchInput.textContent.toLowerCase().replaceAll('\n', '');
+
+            // exclude 'more' button from search
+            let files = this.fileWrapper.querySelectorAll('.item:not(.more)');
+
+            // search files
+            files.forEach(file => {
+                let name = file.querySelector('.name').textContent;
+                if (!name.toLowerCase().includes(query)) {
+                    file.style.display = 'none';
+                } else {
+                    file.style.display = '';
+                }
+            });
+
+            // if search query exists
+            if (this.searchInput.textContent !== '') {
+                // show clear button
+                this.searchClear.classList.add('visible');
+
+                // rotate add button
+                this.addButton.classList.add('clear-button-visible');
+            } else {
+                // hide clear button
+                this.searchClear.classList.remove('visible');
+
+                // update add button
+                this.addButton.classList.remove('clear-button-visible');
+            }
+
+            const moreButton = this.fileWrapper.querySelector('.item.more');
+
+            // if more button exists and is not disabled (loading more)
+            if (moreButton && !moreButton.classList.contains('disabled')) {
+                // if more button is in view
+                if (this.fileBrowser.utils.elInView(moreButton)) {
+                    // load more items
+                    this.fileBrowser.fileExplorer.loadMoreItems(moreButton);
+                }
+            }
+        };
+
+        // search when typed in input
+        this.searchInput.addEventListener('input', this.searchInput.search);
+
+        this.searchInput.addEventListener('keydown', (e) => {
+            // disable enter key in search input
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // if query exists
+                if (this.searchInput.textContent !== '') {
+                    this.searchInput.blur();
+                }
+            }
+
+            if (e.key === 'Escape') {
+                // close search
+                e.preventDefault();
+                this.searchInput.closeSearch();
+            }
+        });
+
+        // Define the clearSearch method
+        this.searchInput.clearSearch = () => {
+            // show all files
+            let files = this.fileWrapper.querySelectorAll('.item[style="display: none;"]');
+            files.forEach(file => { file.style.display = '' });
+
+            // clear search input
+            this.searchInput.innerText = '';
+
+            // hide clear button
+            this.searchClear.classList.remove('visible');
+
+            // update add button
+            this.addButton.classList.remove('clear-button-visible');
+
+            // focus search input
+            this.searchInput.focus();
+        };
+
+        // clear search input when clicked on button
+        this.searchClear.addEventListener('click', this.searchInput.clearSearch);
+    }
+
+    /**
      * Setup desktop-specific title scrolling interactions
      */
     setupDesktopTitleInteractions() {
@@ -273,4 +428,4 @@ class Sidebar {
     }
 }
 
-export default Sidebar;
+export default Sidebar
