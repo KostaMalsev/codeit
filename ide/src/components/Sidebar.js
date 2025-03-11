@@ -68,6 +68,8 @@ class Sidebar {
      * Set up event listeners for the sidebar
      */
     setupEventListeners() {
+
+        console.log('calling setupListeners', this.counter == undefined ? this.counter = 1 : ++this.counter)
         // Show bookmark on hover
         this.sidebarToggle.addEventListener('mouseover', () => {
             this.hoveringSidebarToggle = true;
