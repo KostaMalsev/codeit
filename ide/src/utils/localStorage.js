@@ -25,7 +25,8 @@ export function loadFromStorage(fileBrowser) {
     // Load selected file
     if (fileBrowser.storageService.getItem('selectedFile')) {
         // Load selected file from storage
-        fileBrowser.selectedFile = JSON.parse(fileBrowser.storageService.getItem('selectedFile'));
+        const item = fileBrowser.storageService.getItem('selectedFile');
+        fileBrowser.selectedFile = JSON.parse(item);
     } else {
         // Load empty file
         fileBrowser.changeSelectedFile('', '', '', '', '', [0, 0], [0, 0], false);
@@ -34,7 +35,8 @@ export function loadFromStorage(fileBrowser) {
     // Load modified files if not in embed mode
     if (fileBrowser.storageService.getItem('modifiedFiles') && !isEmbed) {
         // Load modified files from storage
-        fileBrowser.modifiedFiles = Object.fromEntries(JSON.parse(getStorage('modifiedFiles')));
+        const item = fileBrowser.storageService.getItem('modifiedFiles');
+        fileBrowser.modifiedFiles = Object.fromEntries(JSON.parse(item));
     } else {
         fileBrowser.modifiedFiles = {};
     }
@@ -42,7 +44,8 @@ export function loadFromStorage(fileBrowser) {
     // Load modified repos
     if (fileBrowser.storageService.getItem('modifiedRepos')) {
         // Load modified repos from storage
-        fileBrowser.modifiedRepos = Object.fromEntries(JSON.parse(getStorage('modifiedRepos')));
+        const item = fileBrowser.storageService.getItem('modifiedRepos');
+        fileBrowser.modifiedRepos = Object.fromEntries(JSON.parse(item));
     } else {
         fileBrowser.modifiedRepos = {};
     }
