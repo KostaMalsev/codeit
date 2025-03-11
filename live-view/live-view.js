@@ -486,7 +486,9 @@ function addBottomSwipeListener() {
 
 }
 
-function updateLiveViewArrow() {
+function updateLiveViewArrow(selectedFile) {
+
+  if (!selectedFile) return;
 
   if (selectedFile.lang == 'html' || selectedFile.lang == 'markup' ||
     selectedFile.lang == 'markdown') {

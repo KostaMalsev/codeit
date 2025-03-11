@@ -158,7 +158,7 @@ class LiveView {
      * Update the live view arrow
      */
     updateLiveViewArrow() {
-        updateLiveViewArrow();//Defined in live-view.js
+        updateLiveViewArrow(this.fileBrowser.selectedFile);//Defined in live-view.js
 
         // Implementation for updating the live view arrow
         // This would typically adjust the position of an arrow icon
