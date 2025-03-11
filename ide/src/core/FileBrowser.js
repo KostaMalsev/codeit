@@ -63,7 +63,7 @@ class FileBrowser {
 
         // Application state
         this.isLoading = false;
-        this.treeLoc = this.loadTreeLocation();
+        this.loadTreeLocation();
         this.selectedFile = this.loadSelectedFile();
         this.modifiedFiles = this.loadModifiedFiles();
         this.modifiedRepos = this.loadModifiedRepos();
@@ -167,7 +167,7 @@ class FileBrowser {
      * Save tree location to storage
      */
     saveTreeLocation() {
-        this.storageService.setItem('treeLoc', JSON.stringify(this.treeLoc));
+        this.storageService.setItem('tree', this.treeLoc.join());
     }
 
     /**
