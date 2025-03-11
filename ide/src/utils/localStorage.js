@@ -36,7 +36,11 @@ export function loadFromStorage(fileBrowser) {
     if (fileBrowser.storageService.getItem('modifiedFiles') && !isEmbed) {
         // Load modified files from storage
         const item = fileBrowser.storageService.getItem('modifiedFiles');
-        fileBrowser.modifiedFiles = Object.fromEntries(JSON.parse(item));
+        const parsed = JSON.parse(item);
+        const entries = Object.entries(parsed).map(([key, value]) => {
+            return [key, value];
+        });
+        fileBrowser.modifiedFiles = Object.fromEntries(entries);
     } else {
         fileBrowser.modifiedFiles = {};
     }
@@ -44,8 +48,6 @@ export function loadFromStorage(fileBrowser) {
     // Load modified repos
     if (fileBrowser.storageService.getItem('modifiedRepos')) {
         // Load modified repos from storage
-        //const item = fileBrowser.storageService.getItem('modifiedRepos');
-        //fileBrowser.modifiedRepos = Object.fromEntries(JSON.parse(item));
         const item = fileBrowser.storageService.getItem('modifiedRepos');
         const parsed = JSON.parse(item);
         const entries = Object.entries(parsed).map(([key, value]) => {
