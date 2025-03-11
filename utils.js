@@ -838,27 +838,41 @@ axios = {
       try {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && String(this.status).startsWith('2')) {
-            try {
-              if (!noParse) {
-                resolve(JSON.parse(this.responseText));
-              } else {
-                resolve(this.responseText);
-              }
-            } catch (e) {
+          if (this.readyState == 4) {
+            // Ignore 401 errors
+            if (this.status === 401) {
               resolve();
+              return;
             }
-          } else if (this.responseText) {
-            try {
-              if (!noParse) {
-                resolve(JSON.parse(this.responseText));
-              } else {
-                resolve(this.responseText);
+
+            if (String(this.status).startsWith('2')) {
+              try {
+                if (!noParse) {
+                  resolve(JSON.parse(this.responseText));
+                } else {
+                  resolve(this.responseText);
+                }
+              } catch (e) {
+                resolve();
               }
-            } catch (e) { }
+            } else if (this.responseText) {
+              try {
+                if (!noParse) {
+                  resolve(JSON.parse(this.responseText));
+                } else {
+                  resolve(this.responseText);
+                }
+              } catch (e) { }
+            }
           }
         };
         xmlhttp.onerror = function () {
+          // Ignore 401 errors
+          if (this.status === 401) {
+            resolve();
+            return;
+          }
+
           if (this.responseText) {
             try {
               if (!noParse) {
@@ -881,11 +895,19 @@ axios = {
       try {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && String(this.status).startsWith('2')) {
-            try {
-              resolve(JSON.parse(this.responseText));
-            } catch (e) {
+          if (this.readyState == 4) {
+            // Ignore 401 errors
+            if (this.status === 401) {
               resolve();
+              return;
+            }
+
+            if (String(this.status).startsWith('2')) {
+              try {
+                resolve(JSON.parse(this.responseText));
+              } catch (e) {
+                resolve();
+              }
             }
           }
         };
@@ -901,11 +923,19 @@ axios = {
       try {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && String(this.status).startsWith('2')) {
-            try {
-              resolve(JSON.parse(this.responseText));
-            } catch (e) {
+          if (this.readyState == 4) {
+            // Ignore 401 errors
+            if (this.status === 401) {
               resolve();
+              return;
+            }
+
+            if (String(this.status).startsWith('2')) {
+              try {
+                resolve(JSON.parse(this.responseText));
+              } catch (e) {
+                resolve();
+              }
             }
           }
         };
@@ -920,19 +950,33 @@ axios = {
       try {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && String(this.status).startsWith('2')) {
-            try {
-              resolve(JSON.parse(this.responseText));
-            } catch (e) {
+          if (this.readyState == 4) {
+            // Ignore 401 errors
+            if (this.status === 401) {
               resolve();
+              return;
             }
-          } else if (this.responseText) {
-            try {
-              resolve(JSON.parse(this.responseText));
-            } catch (e) { }
+
+            if (String(this.status).startsWith('2')) {
+              try {
+                resolve(JSON.parse(this.responseText));
+              } catch (e) {
+                resolve();
+              }
+            } else if (this.responseText) {
+              try {
+                resolve(JSON.parse(this.responseText));
+              } catch (e) { }
+            }
           }
         };
         xmlhttp.onerror = function () {
+          // Ignore 401 errors
+          if (this.status === 401) {
+            resolve();
+            return;
+          }
+
           if (this.responseText) {
             try {
               resolve(JSON.parse(this.responseText));
@@ -950,19 +994,33 @@ axios = {
       try {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
-          if (this.readyState == 4 && String(this.status).startsWith('2')) {
-            try {
-              resolve(JSON.parse(this.responseText));
-            } catch (e) {
+          if (this.readyState == 4) {
+            // Ignore 401 errors
+            if (this.status === 401) {
               resolve();
+              return;
             }
-          } else if (this.responseText) {
-            try {
-              resolve(JSON.parse(this.responseText));
-            } catch (e) { }
+
+            if (String(this.status).startsWith('2')) {
+              try {
+                resolve(JSON.parse(this.responseText));
+              } catch (e) {
+                resolve();
+              }
+            } else if (this.responseText) {
+              try {
+                resolve(JSON.parse(this.responseText));
+              } catch (e) { }
+            }
           }
         };
         xmlhttp.onerror = function () {
+          // Ignore 401 errors 
+          if (this.status === 401) {
+            resolve();
+            return;
+          }
+
           if (this.responseText) {
             try {
               resolve(JSON.parse(this.responseText));
