@@ -121,6 +121,7 @@ class FileBrowser {
 
         // Setup sidebar
         this.sidebar.setup();
+        this.liveView.setup();
 
         // If it's an embed, hide the sidebar
         if (this.storageService.getItem('isEmbed') === 'true') {

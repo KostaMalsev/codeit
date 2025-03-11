@@ -150,7 +150,7 @@ class LiveView {
         }
     }
 
-    async setupLiveView() {
+    async setup() {
         await setupLiveView(this.liveToggle);
     }
 
