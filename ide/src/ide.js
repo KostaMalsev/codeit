@@ -19,11 +19,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
+/*document.addEventListener('DOMContentLoaded', () => {
     const fileBrowser = new FileBrowser();
 
     // Expose to window for debugging in development
     if (fileBrowser.config.isDev) {
         window.fileBrowser = fileBrowser;
     }
-});
+});*/
