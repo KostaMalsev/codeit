@@ -1421,11 +1421,14 @@ class FileExplorer {
      * @param {Element} el - The element to animate
      */
     playPushAnimation(el) {
-        el.classList.add('animate');
 
-        setTimeout(() => {
-            el.classList.remove('animate');
-        }, this.fileBrowser.config.pushAnimDuration * 1000);
+        el.classList.add('checked');
+
+        window.setTimeout(() => {
+
+            el.classList.remove('checked');
+
+        }, checkDelay);
     }
 }
 
