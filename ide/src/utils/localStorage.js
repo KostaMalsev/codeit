@@ -77,7 +77,7 @@ export function loadFromStorage(fileBrowser) {
  */
 function setupComponents(fileBrowser) {
     // Initialize LiveView
-    fileBrowser.liveView.setup(); //TBD@@
+    //fileBrowser.liveView.setup(); //TBD@@ there is not such thing
 
     // Initialize Editor
     fileBrowser.editor.setup();
