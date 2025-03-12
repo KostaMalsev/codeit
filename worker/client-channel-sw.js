@@ -227,7 +227,8 @@ function handleFetchRequest(request, event) {
                 }
 
                 // pair live view client ID with codeit client ID in client array
-                liveViewClients[liveViewClientId] = clientId;
+                //liveViewClients[liveViewClientId] = clientId;//TBD@@
+                liveViewClients[clientId] = liveViewClientId;
             }
 
             // return response from client
