@@ -39,9 +39,7 @@ class HTMLRenderer {
         const livePathLength = 15; // +1
         const livePath = window.location.origin + '/run/' + '_/'.repeat(livePathLength);
 
-        const id = '3500e912-63c0-4765-a329-bbba779d523e';
-
-        liveView.innerHTML = `<iframe src="` + livePath + '?' + id/*this.fileBrowser.workerClientId*/ + '/' + `" name="Live view" title="Live view" class="live-frame" allow="accelerometer; camera; encrypted-media; display-capture; geolocation; gyroscope; microphone; midi; clipboard-read; clipboard-write; payment" allowfullscreen="true" allowtransparency="true" loading="eager" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-scripts allow-same-origin"></iframe>`;
+        liveView.innerHTML = `<iframe src="` + livePath + '?' + this.fileBrowser.workerClientId + '/' + `" name="Live view" title="Live view" class="live-frame" allow="accelerometer; camera; encrypted-media; display-capture; geolocation; gyroscope; microphone; midi; clipboard-read; clipboard-write; payment" allowfullscreen="true" allowtransparency="true" loading="eager" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-scripts allow-same-origin"></iframe>`;
 
         /*const iframeSrc = `${this.liveView.livePath}?${this.fileBrowser.workerClientId}/`;
 
