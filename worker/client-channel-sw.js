@@ -34,6 +34,8 @@ let enableDevLogs = false;
 function getPathType(path) {
     let pathType = 'external';
 
+    console.log('in getPath:', path, self.location.origin)
+
     if (!path.includes(self.location.origin)) return 'external';
 
     Object.entries(INTERNAL_PATHS).forEach(type => {
