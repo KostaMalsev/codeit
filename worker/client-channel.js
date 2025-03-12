@@ -63,7 +63,7 @@ async function setupWorkerChannel() {
     workerChannel = new BroadcastChannel('worker-channel');
 
     // Get client ID from worker
-    workerClientId = await getClientIdFromWorker();
+    //workerClientId = await getClientIdFromWorker();
 
     if (!workerClientId) {
       console.warn('Failed to get client ID from worker, generating fallback ID');
@@ -162,7 +162,8 @@ function setupMessageListener() {
   workerChannel.addEventListener('message', async (event) => {
     console.log('in client, got message:', event)
     // If message is for current client
-    if (event.data.toClient === workerClientId) {
+    //if (event.data.toClient === workerClientId) {
+    if (true) { //TBD@@
       // If received request
       if (event.data.type === 'request') {
         console.log('client: got event on request:', event)
