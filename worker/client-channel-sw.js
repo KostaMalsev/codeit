@@ -20,6 +20,7 @@ const INTERNAL_PATHS = {
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 const isDev = (self.location.origin === 'https://dev.codeit.codes');
 
+
 // Create worker channel
 const workerChannel = new BroadcastChannel('worker-channel');
 
@@ -33,13 +34,21 @@ let enableDevLogs = false;
 function getPathType(path) {
     let pathType = 'external';
 
+    if (!path.includes(self.location.origin)) return 'external';
+
     Object.entries(INTERNAL_PATHS).forEach(type => {
         if (path.startsWith(type[1])) {
             pathType = type[0].replaceAll('_', '');
         }
     });
 
-    return pathType;
+    //If still external
+    if (pathType == 'external' && path.includes('run')) {
+        return 'run';
+    } else {
+        return pathType;
+    }
+
 }
 
 // Worker log function
