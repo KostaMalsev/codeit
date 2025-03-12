@@ -93,7 +93,7 @@ function sendRequestToClient(request, clientId) {
             return;
         }
 
-        clientId = liveViewClients[clientId]; //TBD@@
+        //clientId = liveViewClients[clientId]; //TBD@@
 
         let url = request.url;
 
