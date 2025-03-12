@@ -25,6 +25,8 @@ const isDev = (self.location.origin === 'https://dev.codeit.codes');
 const workerChannel = new BroadcastChannel('worker-channel');
 
 // Key:value mapping of live view client IDs to codeit client IDs
+//** client ID's cannot be accessed outside service worker, therefore we keep track between client generated ids "client ID"
+// and the actual id of the client when he send the network request.
 const liveViewClients = {};
 
 // Enable dev logs flag
@@ -95,6 +97,12 @@ function sendRequestToClient(request, clientId) {
             && !url.endsWith('.html')
             && !url.endsWith('/')) url += '.html';
 
+        console.log('worker: sending message to client:', clientId, {
+            url: url,
+            toClient: clientId,
+            type: 'request'
+        });
+
         // send request to client
         workerChannel.postMessage({
             url: url,
@@ -127,7 +135,7 @@ function sendRequestToClient(request, clientId) {
                 event.data.url === url &&
                 event.data.fromClient === clientId) {
 
-                if (enableDevLogs) {
+                if (true) { //TBD@@
                     console.debug('[ServiceWorker] Received response data from client', event.data);
                 }
 
@@ -137,7 +145,7 @@ function sendRequestToClient(request, clientId) {
                 // create Response from data
                 const response = createResponse(event.data.resp, mimeType, event.data.respStatus);
 
-                if (enableDevLogs) {
+                if (true) { //TBD@@
                     console.debug('[ServiceWorker] Resolved live view request with client response', response, event.data.resp, event.data.respStatus);
                 }
 
