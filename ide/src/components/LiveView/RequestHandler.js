@@ -16,6 +16,8 @@ class RequestHandler {
      * @returns {Object} Response with file content and status
      */
     async handleRequest(requestPath) {
+
+        console.log('worker send me the client resolved path:', requestPath)
         // if requesting base path
         if (requestPath.split('?')[0] === this.liveView.livePath) {
             // return live file

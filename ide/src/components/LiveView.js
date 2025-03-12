@@ -580,6 +580,7 @@ class LiveView {
      */
     async handleLiveViewRequest(requestPath) {
         try {
+            console.log('in handle live view, handling event from worker with resolved ', requestPath)
             // Delegate to the request handler component
             return await this.requestHandler.handleRequest(requestPath);
         } catch (error) {

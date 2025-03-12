@@ -75,7 +75,7 @@ async function setupWorkerChannel() {
 
     // Log success
     console.log('Service worker setup complete with client ID:', workerClientId);
-    window.fileBrowser.workerClientId = workerClientId;
+    window.fileBrowser.workerClientId = workerClientId; //TBD@@
 
     // Setup additional event listeners
     setupAdditionalListeners();
