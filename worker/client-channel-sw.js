@@ -69,6 +69,8 @@ function createResponse(data, type, status, cache) {
 
 // Send fetch request to client
 function sendRequestToClient(request, clientId) {
+
+    console.log('sending request to client from worker', request, clientId)
     return new Promise((resolve, reject) => {
         // get client ID
         clientId = liveViewClients[clientId] ?? clientId;
