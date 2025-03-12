@@ -160,6 +160,7 @@ function generateClientId() {
 // Set up message listener
 function setupMessageListener() {
   workerChannel.addEventListener('message', async (event) => {
+    console.log('in client, got message:', event)
     // If message is for current client
     if (event.data.toClient === workerClientId) {
       // If received request
