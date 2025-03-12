@@ -1,0 +1,41 @@
+.
+├── README.md
+├── package.json
+├── public
+│   ├── assets
+│   ├── index.html
+│   └── styles
+├── src
+│   ├── components
+│   │   ├── BottomFloat.js
+│   │   ├── BranchManager.js
+│   │   ├── Editor.js
+│   │   ├── FileExplorer.js
+│   │   ├── LiveView.js
+│   │   └── Sidebar.js
+│   ├── core
+│   │   ├── Config.js
+│   │   ├── EventManager.js
+│   │   ├── FileBrowser.js
+│   │   ├── UI.js
+│   │   └── Utils.js
+│   ├── ide.js
+│   ├── models
+│   │   ├── DirectoryModel.js
+│   │   ├── FileModel.js
+│   │   └── RepoModel.js
+│   ├── services
+│   │   ├── FormatService.js
+│   │   ├── GitAuth.js
+│   │   ├── GitService.js
+│   │   ├── NotificationService.js
+│   │   └── StorageService.js
+│   ├── ui
+│   │   ├── ContextMenu.js
+│   │   ├── Dialog.js
+│   │   └── SearchBar.js
+│   └── utils
+│       └── localStorage.js
+└── tree.txt
+
+11 directories, 28 files
