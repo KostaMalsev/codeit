@@ -2,30 +2,30 @@
 // function runs in loadFile() in gitsidebar.js
 // if isMobile
 function updateFloat() {
-  
+
   // close sidebar
   toggleSidebar(false);
   saveSidebarStateLS();
-  
+
   // show bottom floater
   bottomWrapper.classList.remove('hidden');
 
   // if selected file is modified, show flag
   if (modifiedFiles[selectedFile.sha] &&
-      !modifiedFiles[selectedFile.sha].eclipsed) {
-    
+    !modifiedFiles[selectedFile.sha].eclipsed) {
+
     bottomFloat.classList.add('modified');
-    
+
   } else {
-    
+
     bottomFloat.classList.remove('modified');
-    
+
   }
-  
+
   if (pushWrapper.classList.contains('checked')) {
-      
+
     pushWrapper.classList.remove('checked');
-      
+
   }
 
   // show selected file name
@@ -36,10 +36,10 @@ function updateFloat() {
 
 // open sidebar when clicked on button
 sidebarOpen.addEventListener('click', () => {
-  
+
   // if bottom float isn't expanded
   if (!liveView.querySelector('.live-frame')) {
-    
+
     toggleSidebar(true);
     saveSidebarStateLS();
 
@@ -51,7 +51,7 @@ sidebarOpen.addEventListener('click', () => {
       selectedEl.scrollIntoViewIfNeeded();
 
     }
-    
+
   }
 
 })
@@ -78,69 +78,75 @@ pushWrapper.innerHTML = pushIcon;
 
 // push when clicked on button
 pushWrapper.addEventListener('click', async () => {
-  
+
   // get selected file element
-  let selectedEl = fileWrapper.querySelector('.file.modified[sha="'+ selectedFile.sha +'"]');
-  
+  let selectedEl = fileWrapper.querySelector('.file.modified[sha="' + selectedFile.sha + '"]');
+
   // if selected file element is modified
   if (selectedEl) {
-    
+
     const dialogResp = await checkPushDialogs();
-    
+
     if (dialogResp === 'return') return;
-    
-    
+
+
     // play push animation
     playPushAnimation(pushWrapper);
-    
+
     // push file
     pushFileFromHTML(selectedEl, ('Update ' + selectedEl.innerText));
-    
+
   }
 
 })
 
 
 // download selected file on click of button
-floatDownload.addEventListener('click', downloadSelFile);
-
+//floatDownload.addEventListener('click', downloadSelFile);
+floatDownload.addEventListener('click', () => {
+  if (window.fileBrowser && window.fileBrowser.liveView) {
+    window.fileBrowser.liveView.eventHandler.downloadSelectedFile();
+  } else {
+    console.error('LiveView not available for download');
+  }
+});
 
 // if on mobile
 if (isMobile) {
 
   cd.on('scroll', checkBottomFloat, false);
-  
+
   cd.on('blur', () => {
-    
+
     bottomWrapper.classList.remove('hidden');
-    
+
   });
-  
-  
+
+
   // update on screen resize
-  
+
   bottomWrapper.style.setProperty('--window-height', window.innerHeight + 'px');
-  
+
   window.addEventListener('resize', () => {
-    
+
     // if the window's height changed
     if (window.innerHeight != bottomWrapper.prevWindowHeight) {
-      
+
       bottomWrapper.prevWindowHeight = window.innerHeight;
-      
+
     } else {
-      
+
       return;
-      
+
     }
-    
+
     // update bottom float
     bottomWrapper.style.setProperty('--window-height', window.innerHeight + 'px');
-    
-    window.setTimeout(() => {  
+
+    window.setTimeout(() => {
       bottomWrapper.style.setProperty('--window-height', window.innerHeight + 'px');
     }, 50);
-    
+
   });
 
 }

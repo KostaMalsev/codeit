@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Create the FileBrowser instance
     const fileBrowser = new FileBrowser();
 
+    //TBD@@ - make fileBrowser availible to all (global) - 1 case if old bottomfloat.js
+    window.fileBrowser = fileBrowser;
+
+
     // Register LiveView instance with the worker channel
     registerLiveView(fileBrowser.liveView);
 
