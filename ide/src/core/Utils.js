@@ -241,6 +241,10 @@ class Utils {
             return '';
         }
     }
+
+    logVersion = () => {
+        console.log('%cCodeit ' + version, 'font-style: italic; color: gray');
+    }
 }
 
 export default Utils;

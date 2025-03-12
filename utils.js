@@ -72,7 +72,7 @@ const body = document.body,
 
 
 
-// version
+// version //TBD@@ - will need to move to configuration component
 let version = '3.4.6';
 versionEl.textContent = version;
 
