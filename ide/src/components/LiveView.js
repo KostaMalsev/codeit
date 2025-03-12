@@ -1,11 +1,11 @@
 /**
  * LiveView component for displaying file previews and rendering content
  */
-import HTMLRenderer from './LiveView/HTMLRenderer';
-import MarkdownRenderer from './LiveView/MarkdownRenderer';
-import BinaryRenderer from './LiveView/BinaryRenderer';
-import RequestHandler from './LiveView/RequestHandler';
-import EventHandler from './LiveView/EventHandler';
+import HTMLRenderer from './LiveView/HTMLRenderer.js';
+import MarkdownRenderer from './LiveView/MarkdownRenderer.js';
+import BinaryRenderer from './LiveView/BinaryRenderer.js';
+import RequestHandler from './LiveView/RequestHandler.js';
+import EventHandler from './LiveView/EventHandler.js';
 
 class LiveView {
     constructor(fileBrowser) {
