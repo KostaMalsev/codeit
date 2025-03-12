@@ -571,6 +571,27 @@ class LiveView {
             return;
         }
     }
+
+    /**
+     * Handle live view request for file content
+     * This method is called by the worker channel when the iframe requests a file
+     * @param {string} requestPath - The requested path
+     * @returns {Object} Response with file content and status
+     */
+    async handleLiveViewRequest(requestPath) {
+        try {
+            // Delegate to the request handler component
+            return await this.requestHandler.handleRequest(requestPath);
+        } catch (error) {
+            console.error('Error handling live view request:', error);
+
+            // Return an error response
+            return {
+                fileContent: '',
+                respStatus: 500
+            };
+        }
+    }
 }
 
 export default LiveView;
