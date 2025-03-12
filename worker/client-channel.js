@@ -43,95 +43,182 @@ function registerLiveView(liveView) {
 
 // setup worker channel
 async function setupWorkerChannel() {
-  // register service worker
-  workerInstallPromise = navigator.serviceWorker.register('/service-worker.js');
-  await workerInstallPromise;
+  try {
+    // Register service worker
+    const registration = await navigator.serviceWorker.register('/service-worker.js');
+    console.log('Service Worker registered with scope:', registration.scope);
 
-  let numOfRequests = 0;
-  async function pingWorkerForClientId() {
-    // get client ID from worker
-    let resp = await axios.get('/worker/getClientId', '', true);
-
-    try {
-      resp = JSON.parse(resp);
-    } catch (e) {
-      resp = '';
-      console.log('%c[Client] Pinged ServiceWorker for installation', 'color: #80868b');
+    // Wait for the service worker to be activated
+    if (registration.installing) {
+      console.log('Service worker installing');
+      await waitForServiceWorkerActivation(registration.installing);
+    } else if (registration.waiting) {
+      console.log('Service worker installed but waiting');
+      await waitForServiceWorkerActivation(registration.waiting);
+    } else if (registration.active) {
+      console.log('Service worker active');
     }
 
-    if (numOfRequests < 3) { //100 TBD@@
-      if (!resp || !resp.clientId) {
-        numOfRequests++;
-        return await pingWorkerForClientId();
-      } else {
+    // Create worker channel
+    workerChannel = new BroadcastChannel('worker-channel');
+
+    // Get client ID from worker
+    workerClientId = await getClientIdFromWorker();
+
+    if (!workerClientId) {
+      console.warn('Failed to get client ID from worker, generating fallback ID');
+      workerClientId = generateClientId();
+    }
+
+    // Set up message listener
+    setupMessageListener();
+
+    // Log success
+    console.log('Service worker setup complete with client ID:', workerClientId);
+
+    // Setup additional event listeners
+    setupAdditionalListeners();
+
+    return workerClientId;
+  } catch (error) {
+    console.error('Service Worker registration failed:', error);
+    return null;
+  }
+}
+
+// Wait for service worker to activate
+function waitForServiceWorkerActivation(serviceWorker) {
+  return new Promise((resolve) => {
+    if (serviceWorker.state === 'activated') {
+      resolve();
+      return;
+    }
+
+    serviceWorker.addEventListener('statechange', (e) => {
+      if (e.target.state === 'activated') {
+        resolve();
+      }
+    });
+  });
+}
+
+// Get client ID from worker
+async function getClientIdFromWorker() {
+  let numOfRequests = 0;
+  const maxRequests = 3;
+
+  async function pingWorker() {
+    try {
+      // Get client ID from worker
+      let resp = await axios.get('/worker/getClientId', '', true);
+
+      try {
+        if (typeof resp === 'string') {
+          resp = JSON.parse(resp);
+        }
+      } catch (e) {
+        console.log('%c[Client] Failed to parse worker response', 'color: #80868b');
+      }
+
+      if (resp && resp.clientId) {
         return resp.clientId;
       }
-    } else {
-      return null;
+
+      console.log('%c[Client] Pinged ServiceWorker for installation', 'color: #80868b');
+
+      if (numOfRequests < maxRequests) {
+        numOfRequests++;
+        // Wait a bit before trying again
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return await pingWorker();
+      } else {
+        return null;
+      }
+    } catch (error) {
+      console.error('Error getting client ID from worker:', error);
+
+      if (numOfRequests < maxRequests) {
+        numOfRequests++;
+        // Wait a bit before trying again
+        await new Promise(resolve => setTimeout(resolve, 500));
+        return await pingWorker();
+      } else {
+        return null;
+      }
     }
   }
 
-  // ping worker for client ID
-  workerInstallPromise = pingWorkerForClientId();
-  workerClientId = await workerInstallPromise;
-  workerInstallPromise = null;
+  return await pingWorker();
+}
 
-  // create worker channel
-  workerChannel = new BroadcastChannel('worker-channel');
+// Generate a fallback client ID
+function generateClientId() {
+  return 'client-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9);
+}
 
-  // add worker channel listener
+// Set up message listener
+function setupMessageListener() {
   workerChannel.addEventListener('message', async (event) => {
-    // if message is for current client
+    // If message is for current client
     if (event.data.toClient === workerClientId) {
-      // if received request
+      // If received request
       if (event.data.type === 'request') {
-        try {
-          // Check if LiveView instance exists
-          if (!liveViewInstance) {
-            console.error('LiveView instance not registered. Use registerLiveView() first.');
-            throw new Error('LiveView instance not registered');
-          }
-
-          // Call handleLiveViewRequest on the LiveView instance
-          const { fileContent, respStatus } =
-            await liveViewInstance.handleLiveViewRequest(event.data.url);
-
-          // send response back to worker
-          workerChannel.postMessage({
-            url: event.data.url,
-            resp: fileContent,
-            respStatus: (respStatus ?? 200),
-            fromClient: workerClientId,
-            type: 'response'
-          });
-        } catch (error) {
-          console.error('Error handling live view request:', error);
-
-          // Send error response back to worker
-          workerChannel.postMessage({
-            url: event.data.url,
-            resp: '',
-            respStatus: 500,
-            fromClient: workerClientId,
-            type: 'response'
-          });
-        }
-      } else if (event.data.type === 'reload') { // if received reload request
-        // reload page
+        handleServiceWorkerRequest(event.data);
+      } else if (event.data.type === 'reload') { // If received reload request
+        // Reload page
         window.location.reload();
-      } else if (event.data.type === 'message') { // if received message
-        // log message
+      } else if (event.data.type === 'message') { // If received message
+        // Log message
         console.debug(event.data.message);
       }
     }
   });
+}
 
+// Handle service worker requests
+async function handleServiceWorkerRequest(data) {
+  try {
+    // Check if LiveView instance exists
+    if (!liveViewInstance) {
+      console.error('LiveView instance not registered. Use registerLiveView() first.');
+      throw new Error('LiveView instance not registered');
+    }
+
+    // Call handleLiveViewRequest on the LiveView instance
+    const { fileContent, respStatus } =
+      await liveViewInstance.handleLiveViewRequest(data.url);
+
+    // Send response back to worker
+    workerChannel.postMessage({
+      url: data.url,
+      resp: fileContent,
+      respStatus: (respStatus ?? 200),
+      fromClient: workerClientId,
+      type: 'response'
+    });
+  } catch (error) {
+    console.error('Error handling live view request:', error);
+
+    // Send error response back to worker
+    workerChannel.postMessage({
+      url: data.url,
+      resp: '',
+      respStatus: 500,
+      fromClient: workerClientId,
+      type: 'response'
+    });
+  }
+}
+
+// Setup additional event listeners
+function setupAdditionalListeners() {
   window.addEventListener('load', () => {
     if (getStorage('workerDevLogs')) {
       workerChannel.postMessage({
         type: 'enableDevLogs'
       });
     }
+
     if (window.location.hostname === 'dev.codeit.codes') {
       workerChannel.postMessage({
         type: 'updateWorker'
@@ -140,12 +227,13 @@ async function setupWorkerChannel() {
   });
 }
 
-// enable service worker logs
+// Enable service worker logs
 function enableWorkerLogs() {
   setStorage('workerDevLogs', 'true');
   window.location.reload();
 }
 
+// Simple axios implementation
 try {
   axios = axios;
 } catch (e) {
