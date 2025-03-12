@@ -73,6 +73,9 @@ class FileBrowser {
         this.repoPromise = null;
         this.eclipsedFilesTimeout = null;
 
+        //TBD@@ set the global workerClientId to connect to the worker:
+        this.workerClientId = workerClientId;
+
         // Initialize the application
         this.initialize();
     }
