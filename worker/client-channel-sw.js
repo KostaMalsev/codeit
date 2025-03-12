@@ -82,6 +82,7 @@ function createResponse(data, type, status, cache) {
 function sendRequestToClient(request, clientId) {
 
     console.log('sending request to client from worker', request, clientId); //TBD@@
+    console.log('worker knows these client ids:', liveViewClients, ' we have this client id:', clientId)
 
     return new Promise((resolve, reject) => {
         // get client ID
