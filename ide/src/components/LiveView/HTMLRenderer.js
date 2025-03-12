@@ -34,7 +34,14 @@ class HTMLRenderer {
      * @param {Object} file - The file to render in the iframe
      */
     createIframe(file) {
-        const iframeSrc = `${this.liveView.livePath}?${this.fileBrowser.workerClientId}/`;
+
+        //TBD@@ not understand this, but let's add it from legacy code:
+        const livePathLength = 15; // +1
+        const livePath = window.location.origin + '/run/' + '_/'.repeat(livePathLength);
+
+        liveView.innerHTML = `<iframe src="` + livePath + '?' + workerClientId + '/' + `" name="Live view" title="Live view" class="live-frame" allow="accelerometer; camera; encrypted-media; display-capture; geolocation; gyroscope; microphone; midi; clipboard-read; clipboard-write; payment" allowfullscreen="true" allowtransparency="true" loading="eager" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-scripts allow-same-origin"></iframe>`;
+
+        /*const iframeSrc = `${this.liveView.livePath}?${this.fileBrowser.workerClientId}/`;
 
         this.liveView.element.innerHTML = `<iframe 
             src="${iframeSrc}" 
@@ -46,7 +53,7 @@ class HTMLRenderer {
             allowtransparency="true" 
             loading="eager" 
             sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-scripts allow-same-origin">
-        </iframe>`;
+        </iframe>`;*/
 
         // Store the file for request handling
         this.liveView.liveFile = file;
