@@ -70,7 +70,8 @@ function createResponse(data, type, status, cache) {
 // Send fetch request to client
 function sendRequestToClient(request, clientId) {
 
-    console.log('sending request to client from worker', request, clientId)
+    console.log('sending request to client from worker', request, clientId); //TBD@@
+
     return new Promise((resolve, reject) => {
         // get client ID
         clientId = liveViewClients[clientId] ?? clientId;
@@ -153,6 +154,8 @@ workerChannel.addEventListener('message', (event) => {
 
 // Handle fetch request - basic version that can be extended in the main service worker
 function handleFetchRequest(request, event) {
+    console.log('worker, handling fetch request', request, event);//TBD@@
+
     return new Promise(async (resolve, reject) => {
         // get request path type
         const pathType = getPathType(request.url);
