@@ -93,6 +93,8 @@ function sendRequestToClient(request, clientId) {
             return;
         }
 
+        clientId = liveViewClients[clientId]; //TBD@@
+
         let url = request.url;
 
         // append .html to url if navigating
