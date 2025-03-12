@@ -164,6 +164,7 @@ function setupMessageListener() {
     if (event.data.toClient === workerClientId) {
       // If received request
       if (event.data.type === 'request') {
+        console.log('client: got event on request:', event)
         handleServiceWorkerRequest(event.data);
       } else if (event.data.type === 'reload') { // If received reload request
         // Reload page
@@ -178,6 +179,7 @@ function setupMessageListener() {
 
 // Handle service worker requests
 async function handleServiceWorkerRequest(data) {
+  console.log('client: in handleServiceWorkerRequest got message event from service worker:', data)
   try {
     // Check if LiveView instance exists
     if (!liveViewInstance) {
