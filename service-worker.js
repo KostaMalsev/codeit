@@ -4,7 +4,7 @@ const WORKER_NAME = 'codeit-worker-v786'; // Incrementing version to ensure clea
 // Import the non-module version of client-channel
 self.importScripts('/worker/client-channel-sw.js');
 
-// Now we can use isDev from client-channel-sw.js
+// Now we can use isDev and other shared functions from client-channel-sw.js
 let WORKER_CACHE_ENABLED = true;
 if (isDev) {
   WORKER_CACHE_ENABLED = false;
@@ -82,14 +82,18 @@ async function cacheResources() {
 
     // Use individual cache.add() calls instead of cache.addAll()
     // This prevents a single failure from aborting the entire operation
-    const cachePromises = FILES_TO_CACHE.map(file => {
-      return cache.add(file).catch(error => {
+    for (const file of FILES_TO_CACHE) {
+      try {
+        await cache.add(file);
+        if (enableDevLogs) {
+          console.log(`Cached ${file}`);
+        }
+      } catch (error) {
         console.warn(`Failed to cache ${file}: ${error.message}`);
         // Continue despite individual failures
-      });
-    });
+      }
+    }
 
-    await Promise.all(cachePromises);
     console.log('Caching complete');
   } catch (error) {
     console.error('Caching failed:', error);
@@ -105,43 +109,6 @@ caches.keys().then((keyList) => {
   }));
 });
 
-// Add handler for client ID requests
-self.addEventListener('fetch', (evt) => {
-  const url = new URL(evt.request.url);
-
-  // Handle getClientId endpoint
-  if (url.pathname === '/worker/getClientId') {
-    evt.respondWith(
-      new Response(
-        JSON.stringify({ clientId: evt.clientId }),
-        {
-          headers: { 'Content-Type': 'application/json' },
-          status: 200
-        }
-      )
-    );
-    return;
-  }
-
-  // For all other requests, use the existing handleFetchRequest function
-  evt.respondWith(handleFetchRequest(evt.request, evt));
-});
-
-// Add verification handler to the worker channel
-workerChannel.addEventListener('message', (event) => {
-  if (event.data.type === 'verificationRequest') {
-    // Send verification response
-    workerChannel.postMessage({
-      type: 'verificationResponse',
-      clientId: event.data.clientId
-    });
-  } else if (event.data.type === 'enableDevLogs') {
-    enableDevLogs = true;
-  } else if (event.data.type === 'updateWorker') {
-    self.registration.update();
-  }
-});
-
 self.addEventListener('install', (evt) => {
   console.log('Service worker installing...');
   // Start caching during installation
@@ -152,4 +119,9 @@ self.addEventListener('install', (evt) => {
 self.addEventListener('activate', (evt) => {
   console.log('Service worker activating...');
   self.clients.claim();
+});
+
+// Use the handleFetchRequest function from client-channel-sw.js
+self.addEventListener('fetch', (evt) => {
+  evt.respondWith(handleFetchRequest(evt.request, evt));
 });
