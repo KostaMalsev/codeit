@@ -3,15 +3,15 @@
 const WORKER_NAME = 'codeit-worker-v785';
 
 
-self.importScripts('/worker/client-channel.js');
-
+//self.importScripts('/worker/client-channel.js');
+self.importScripts('/worker/client-channel-sw.js');
 
 let WORKER_CACHE_ENABLED = true;
 
 if (isDev) {
-  
+
   WORKER_CACHE_ENABLED = false;
-  
+
 }
 
 
@@ -28,7 +28,7 @@ const FILES_TO_CACHE = [
 
   '/full',
   '/full.css',
-  
+
   '/worker/worker-channel.js',
 
   '/utils.js',
@@ -46,17 +46,17 @@ const FILES_TO_CACHE = [
   '/context-menu.js',
 
   '/live-view/live-view.js',
-  
+
   '/live-view/extensions/draggable.js',
   '/live-view/extensions/beautifier.min.js',
-  
+
   '/live-view/extensions/mobile-console/console-sheet.js',
   '/live-view/extensions/mobile-console/logger.js',
   '/live-view/extensions/mobile-console/safari-keyboard.js',
-  
+
   '/live-view/extensions/markdown/marked.min.js',
   '/live-view/extensions/markdown/markdown-dark.css',
-  
+
   '/editor-theme.css',
 
   '/fonts/fonts.css',
@@ -72,14 +72,14 @@ const FILES_TO_CACHE = [
   '/fonts/Inter/Inter-SemiBold.woff2',
   '/fonts/Inter/Inter-SemiBoldItalic.woff2',
   '/fonts/Inter/Inter-Bold.woff2',
-  
+
   '/fonts/Roboto-Mono/RobotoMono-Regular.woff2',
   '/fonts/Roboto-Mono/RobotoMono-Italic.woff2',
   '/fonts/Roboto-Mono/RobotoMono-Bold.woff2',
   '/fonts/Roboto-Mono/RobotoMono-BoldItalic.woff2',
 
   'https://plausible.io/js/plausible.js',
-  
+
   '/',
 
   '/icons/android-app-512.png',
@@ -92,29 +92,29 @@ const FILES_TO_CACHE = [
 
 // remove previous cached data
 caches.keys().then((keyList) => {
-  
+
   return Promise.all(keyList.map((key) => {
-    
+
     if (key !== WORKER_NAME ||
-        !WORKER_CACHE_ENABLED) {
-      
+      !WORKER_CACHE_ENABLED) {
+
       return caches.delete(key);
-      
+
     }
-    
+
   }));
-  
+
 });
 
 // precache static resources
 if (WORKER_CACHE_ENABLED) {
-  
+
   caches.open(WORKER_NAME).then((cache) => {
-    
+
     return cache.addAll(FILES_TO_CACHE);
-    
+
   });
-  
+
 }
 
 

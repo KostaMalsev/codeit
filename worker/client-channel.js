@@ -197,7 +197,7 @@ axios = {
   }
 };
 
-// Export functions and variables
+// Export functions and variables for ES modules
 export {
   setupWorkerChannel,
   registerLiveView,
@@ -208,8 +208,7 @@ export {
   isDev
 };
 
-// If this script is loaded directly (not as a module), run setupWorkerChannel
-if (typeof module === 'undefined') {
-  // setup worker channel
+// Initialize if this script is loaded directly via script tag
+if (typeof module === 'undefined' && !window.isModuleScript) {
   setupWorkerChannel();
 }
