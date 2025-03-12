@@ -154,7 +154,7 @@ workerChannel.addEventListener('message', (event) => {
 
 // Handle fetch request - basic version that can be extended in the main service worker
 function handleFetchRequest(request, event) {
-    console.log('worker, handling fetch request', request, event);//TBD@@
+    console.log('worker, handling fetch request', request, event, getPathType(request.referrer));//TBD@@
 
     return new Promise(async (resolve, reject) => {
         // get request path type
