@@ -7,7 +7,7 @@ import { setupWorkerChannel, registerLiveView } from '../../worker/client-channe
 document.addEventListener('DOMContentLoaded', async () => {
 
     // Initialize the service worker and worker channel
-    setupWorkerChannel();
+    //setupWorkerChannel();
 
     // Create the FileBrowser instance
     const fileBrowser = new FileBrowser();

@@ -39,6 +39,8 @@ class HTMLRenderer {
         const livePathLength = 15; // +1
         const livePath = window.location.origin + '/run/' + '_/'.repeat(livePathLength);
 
+        this.fileBrowser.workerClientId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+
         liveView.innerHTML = `<iframe src="` + livePath + '?' + this.fileBrowser.workerClientId + '/' + `" name="Live view" title="Live view" class="live-frame" allow="accelerometer; camera; encrypted-media; display-capture; geolocation; gyroscope; microphone; midi; clipboard-read; clipboard-write; payment" allowfullscreen="true" allowtransparency="true" loading="eager" sandbox="allow-downloads allow-forms allow-modals allow-pointer-lock allow-popups allow-presentation allow-scripts allow-same-origin"></iframe>`;
 
         /*const iframeSrc = `${this.liveView.livePath}?${this.fileBrowser.workerClientId}/`;
