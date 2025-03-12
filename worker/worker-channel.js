@@ -78,8 +78,11 @@ async function setupWorkerChannel() {
 
         // send request to /live-view/live-view.js
         // for handling
+        if (!window.fileBrowser) {
+          console.log('ERROR:', 'the fileBrowser havent initialized yet')
+        }
         const { fileContent, respStatus } =
-          await handleLiveViewRequest(event.data.url);
+          await window.fileBrowser.liveView.eventHandler.handleLiveViewRequest(event.data.url);
 
         // send response back to worker
         workerChannel.postMessage({
