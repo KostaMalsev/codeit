@@ -45,7 +45,7 @@ const FILES_TO_CACHE = [
   '/bottomfloat.js',
   '/context-menu.js',
 
-  '/live-view/live-view.js',
+  //'/live-view/live-view.js',
 
   '/live-view/extensions/draggable.js',
   '/live-view/extensions/beautifier.min.js',
