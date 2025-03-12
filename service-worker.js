@@ -31,16 +31,15 @@ const FILES_TO_CACHE = [
   '/repos.js',
   '/git/gitapi.js',
   '/codedrop.js',
-  '/localstorage.js',
   '/bottomfloat.js',
   '/context-menu.js',
 
   // Add new LiveView component files if they need to be cached
-  '/components/LiveView/HTMLRenderer.js',
-  '/components/LiveView/MarkdownRenderer.js',
-  '/components/LiveView/BinaryRenderer.js',
-  '/components/LiveView/RequestHandler.js',
-  '/components/LiveView/EventHandler.js',
+  '/ide/src/components/LiveView/HTMLRenderer.js',
+  '/ide/src//components/LiveView/MarkdownRenderer.js',
+  '/ide/src//components/LiveView/BinaryRenderer.js',
+  '/ide/src//components/LiveView/RequestHandler.js',
+  '/ide/src//components/LiveView/EventHandler.js',
 
   '/live-view/extensions/draggable.js',
   '/live-view/extensions/beautifier.min.js',
