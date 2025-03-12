@@ -88,7 +88,10 @@ function sendRequestToClient(request, clientId) {
 
     return new Promise((resolve, reject) => {
         // get client ID
-        clientId = liveViewClients[clientId] ?? clientId;
+        //clientId = liveViewClients[clientId] ?? clientId;
+        if (!liveViewClients[clientId]) {
+            return;
+        }
 
         let url = request.url;
 
