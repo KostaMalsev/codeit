@@ -231,3 +231,5 @@ class WorkerClient {
         }
     }
 }
+
+export { WorkerClient };
