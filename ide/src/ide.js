@@ -1,14 +1,14 @@
 // File: /ide/src/ide.js
+import FileBrowser from './core/FileBrowser.js';
+import * as GitAuth from './services/GitAuth.js';
 
+// Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
-    // Make sure the required scripts are loaded
-    await ensureScriptsLoaded([
-        '/worker/service-worker-registration.js',
-        '/worker/worker-client.js'
-    ]);
+    // Load the worker scripts non-modularly
+    await loadWorkerScripts();
 
-    // Initialize the service worker manager
-    const swManager = new ServiceWorkerManager({
+    // Initialize the service worker
+    const swManager = new window.ServiceWorkerManager({
         debug: true,
         onSuccess: (registration) => {
             console.log('Service Worker registration successful with scope:', registration.scope);
@@ -26,30 +26,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     swManager.register();
 });
 
-// Helper function to ensure scripts are loaded
-function ensureScriptsLoaded(scripts) {
-    return Promise.all(scripts.map(scriptUrl => {
-        return new Promise((resolve, reject) => {
-            // Check if script is already loaded
-            if (document.querySelector(`script[src="${scriptUrl}"]`)) {
-                resolve();
-                return;
-            }
+// Load the worker scripts that need to be non-modular
+async function loadWorkerScripts() {
+    return Promise.all([
+        loadScript('/worker/service-worker-registration.js'),
+        loadScript('/worker/worker-client.js')
+    ]);
+}
 
-            // Load the script
-            const script = document.createElement('script');
-            script.src = scriptUrl;
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-        });
-    }));
+// Helper function to load a script
+function loadScript(src) {
+    return new Promise((resolve, reject) => {
+        // Check if script is already loaded
+        if (document.querySelector(`script[src="${src}"]`)) {
+            resolve();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
 }
 
 // Initialize the worker client
 function initWorkerClient() {
     // Create a client instance with IDE-specific options
-    const workerClient = new WorkerClient({
+    const workerClient = new window.WorkerClient({
         clientType: 'ide',
         metadata: {
             pageId: generatePageId(),
@@ -80,10 +85,6 @@ function initWorkerClient() {
 
 // Initialize the main application
 async function initApp() {
-    // Import the FileBrowser and GitAuth
-    const FileBrowser = window.FileBrowser || await importFileBrowser();
-    const GitAuth = window.GitAuth || await importGitAuth();
-
     // Create the FileBrowser instance
     const fileBrowser = new FileBrowser();
 
@@ -100,28 +101,6 @@ async function initApp() {
 
     // Load data from storage
     fileBrowser.storageService.loadFromStorage(fileBrowser);
-}
-
-// Import FileBrowser if not already available
-function importFileBrowser() {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = './core/FileBrowser.js';
-        script.onload = () => resolve(window.FileBrowser);
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
-}
-
-// Import GitAuth if not already available
-function importGitAuth() {
-    return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = './services/GitAuth.js';
-        script.onload = () => resolve(window.GitAuth);
-        script.onerror = reject;
-        document.head.appendChild(script);
-    });
 }
 
 // Register LiveView with the worker client
