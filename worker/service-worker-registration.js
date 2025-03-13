@@ -114,3 +114,35 @@ class ServiceWorkerManager {
         }
     }
 }
+
+
+//Inititalizaton of client of the current window to talk to service worker
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Register service worker
+    const swManager = new ServiceWorkerManager({
+        debug: true,
+        onSuccess: (registration) => {
+            console.log('Service Worker registration successful');
+
+            // Initialize client after service worker is registered
+            initWorkerClient();
+        }
+    });
+
+    swManager.register();
+});
+
+function initWorkerClient() {
+    const workerClient = new WorkerClient({
+        clientType: 'editor',  // or 'dashboard' or whatever is appropriate
+        metadata: {
+            pageId: generatePageId(),
+            // Other metadata specific to your application
+        },
+        debug: true
+    });
+
+    // Make the client accessible globally for your application
+    window.workerClient = workerClient;
+}

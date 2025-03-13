@@ -1,0 +1,164 @@
+.
+├── 404.html
+├── LICENSE
+├── README.md
+├── api
+│   ├── cors.js
+│   ├── link.js
+│   └── oembed.js
+├── api-link-parser.js
+├── bottomfloat.js
+├── codedrop.js
+├── context-menu.js
+├── editor-theme.css
+├── filebrowser_tobe_deleted.js
+├── files.js
+├── fonts
+│   ├── Inter
+│   │   ├── Inter-Bold.woff2
+│   │   ├── Inter-Italic.woff2
+│   │   ├── Inter-Light.woff2
+│   │   ├── Inter-Medium.woff2
+│   │   ├── Inter-Regular.woff2
+│   │   ├── Inter-SemiBold.woff2
+│   │   ├── Inter-SemiBoldItalic.woff2
+│   │   └── Inter.var.woff2
+│   ├── Mono-Sans
+│   │   ├── MonoSans-Bold.woff2
+│   │   ├── MonoSans-BoldItalic.woff2
+│   │   ├── MonoSans-Italic.woff2
+│   │   └── MonoSans-Regular.woff2
+│   ├── Roboto-Mono
+│   │   ├── RobotoMono-Bold.woff2
+│   │   ├── RobotoMono-BoldItalic.woff2
+│   │   ├── RobotoMono-Italic.woff2
+│   │   └── RobotoMono-Regular.woff2
+│   └── fonts.css
+├── full.css
+├── full.html
+├── git
+│   ├── gitapi.js
+│   ├── gitauth_tobe_deleted.js
+│   ├── gitlab
+│   │   ├── gitlab-api.js
+│   │   └── gitlab-auth.js
+│   └── login.html
+├── homepage
+│   ├── featured-pic.png
+│   ├── homepage.css
+│   ├── lang.html
+│   ├── privacy.html
+│   └── secondary-pic.png
+├── icons
+│   ├── android-app-512.png
+│   ├── app-favicon.png
+│   ├── iphone-app-180.png
+│   ├── mac-icon-512-padding.png
+│   ├── mac-icon-844.png
+│   └── social
+│       ├── discordapp.svg
+│       ├── tryit.svg
+│       └── twitter.svg
+├── ide
+│   ├── README.md
+│   ├── package.json
+│   ├── public
+│   │   ├── assets
+│   │   ├── index.html
+│   │   └── styles
+│   ├── src
+│   │   ├── components
+│   │   │   ├── BottomFloat.js
+│   │   │   ├── BranchManager.js
+│   │   │   ├── Editor.js
+│   │   │   ├── FileExplorer.js
+│   │   │   ├── LiveView
+│   │   │   │   ├── BinaryRenderer.js
+│   │   │   │   ├── EventHandler.js
+│   │   │   │   ├── HTMLRenderer.js
+│   │   │   │   ├── MarkdownRenderer.js
+│   │   │   │   └── RequestHandler.js
+│   │   │   ├── LiveView.js
+│   │   │   └── Sidebar.js
+│   │   ├── core
+│   │   │   ├── Config.js
+│   │   │   ├── EventManager.js
+│   │   │   ├── FileBrowser.js
+│   │   │   ├── UI.js
+│   │   │   └── Utils.js
+│   │   ├── ide.js
+│   │   ├── models
+│   │   │   ├── DirectoryModel.js
+│   │   │   ├── FileModel.js
+│   │   │   └── RepoModel.js
+│   │   ├── services
+│   │   │   ├── FormatService.js
+│   │   │   ├── GitAuth.js
+│   │   │   ├── GitService.js
+│   │   │   ├── NotificationService.js
+│   │   │   └── StorageService.js
+│   │   ├── ui
+│   │   │   ├── ContextMenu.js
+│   │   │   ├── Dialog.js
+│   │   │   └── SearchBar.js
+│   │   └── utils
+│   │       └── localStorage.js
+│   └── tree.txt
+├── images
+│   ├── banner-og.png
+│   ├── banner-twitter.png
+│   ├── og-image-large-w-text.png
+│   └── og-image-small.png
+├── index.html
+├── lib
+│   ├── codeit.css
+│   ├── codeit.js
+│   ├── plugins
+│   │   ├── codeit-autocomplete.js
+│   │   ├── codeit-autolinker.js
+│   │   ├── codeit-inline-color.js
+│   │   ├── codeit-line-numbers.js
+│   │   └── codeit-match-braces.js
+│   └── prism.js
+├── links.js
+├── live-view
+│   ├── extensions
+│   │   ├── beautifier.min.js
+│   │   ├── codepen-importer.js
+│   │   ├── draggable.js
+│   │   ├── latex.min.js
+│   │   ├── markdown
+│   │   │   ├── dev-marked-alert.js
+│   │   │   ├── markdown-dark.css
+│   │   │   ├── markdown-light-alt.css
+│   │   │   └── marked.min.js
+│   │   ├── mobile-console
+│   │   │   ├── console-sheet.js
+│   │   │   ├── logger.js
+│   │   │   └── safari-keyboard.js
+│   │   └── module-importer.js
+│   └── live-view_tobe_deleted.js
+├── localstorage_tobe_deleted.js
+├── manifest.js
+├── redirect.html
+├── repos.js
+├── service-worker.js
+├── service-worker_tobe_deleted.js
+├── splashes
+│   └── apple-splash-2048-2732.jpg
+├── spotlightsearch_tobe_deleted.js
+├── tests
+│   └── tests.js
+├── tree.txt
+├── utils.js
+├── vercel.json
+└── worker
+    ├── old
+    │   ├── client-channe_tobe_deletedl.js
+    │   ├── client-channel-sw_tobe_deleted.js
+    │   └── worker-channel_tobe_deleted.js
+    ├── orker-communication-manager.js
+    ├── service-worker-registration.js
+    └── worker-client.js
+
+34 directories, 128 files
