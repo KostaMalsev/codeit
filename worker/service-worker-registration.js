@@ -146,3 +146,6 @@ function initWorkerClient() {
     // Make the client accessible globally for your application
     window.workerClient = workerClient;
 }
+
+
+export { ServiceWorkerManager };
