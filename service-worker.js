@@ -5,8 +5,9 @@ const CACHE_VERSION = 'v1';
 const CACHE_NAME = 'codeit-cache-' + CACHE_VERSION;
 const CACHE_ENABLED = true;
 
-// Import communication manager
-self.importScripts('/js/worker-communication-manager.js');
+// Import communication manager using importScripts
+// This requires the file to be written in traditional non-module JavaScript
+self.importScripts('/worker/worker-communication-manager.js');
 
 // Files to cache
 const FILES_TO_CACHE = [
@@ -18,8 +19,9 @@ const FILES_TO_CACHE = [
     '/lib/plugins/codeit-autocomplete.js',
     '/full',
     '/full.css',
-    '/js/worker-communication-manager.js',
-    '/js/worker-client.js',
+    '/worker/worker-communication-manager.js',
+    '/worker/worker-client.js',
+    '/worker/service-worker-registration.js',
     '/utils.js',
     '/manifest.js',
     '/files.js',
@@ -65,7 +67,7 @@ const FILES_TO_CACHE = [
     '/icons/mac-icon-512-padding.png'
 ];
 
-// Simple cache resources function
+// Cache resources function
 async function cacheResources() {
     if (!CACHE_ENABLED) return;
 
@@ -122,7 +124,7 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Fetch event handler with basic caching
+// Fetch event handler
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 

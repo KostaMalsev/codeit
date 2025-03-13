@@ -1,8 +1,15 @@
-// Register and manage the service worker
-class ServiceWorkerManager {
-    constructor(options = {}) {
+// File: /worker/service-worker-registration.js
+// Using traditional non-module syntax for better compatibility
+
+// Service Worker Registration class
+var ServiceWorkerManager = (function () {
+
+    // Constructor
+    function ServiceWorkerManager(options) {
+        options = options || {};
+
         this.options = {
-            workerUrl: options.workerUrl || '../service-worker.js',
+            workerUrl: options.workerUrl || '/service-worker.js',
             scope: options.scope || '/',
             debug: options.debug || false,
             onSuccess: options.onSuccess || null,
@@ -17,55 +24,59 @@ class ServiceWorkerManager {
         this.handleUpdate = this.handleUpdate.bind(this);
     }
 
-    async register() {
+    // Register the service worker
+    ServiceWorkerManager.prototype.register = function () {
+        var self = this;
+
         if (!('serviceWorker' in navigator)) {
-            const error = new Error('Service Workers are not supported in this browser');
+            var error = new Error('Service Workers are not supported in this browser');
             this.log('Registration error:', error);
 
             if (this.options.onError) {
                 this.options.onError(error);
             }
 
-            return false;
+            return Promise.reject(error);
         }
 
-        try {
-            this.registration = await navigator.serviceWorker.register(
-                this.options.workerUrl,
-                { scope: this.options.scope }
-            );
-
-            this.isRegistered = true;
-            this.log('Service Worker registered:', this.registration);
+        return navigator.serviceWorker.register(
+            this.options.workerUrl,
+            { scope: this.options.scope }
+        ).then(function (registration) {
+            self.registration = registration;
+            self.isRegistered = true;
+            self.log('Service Worker registered:', registration);
 
             // Setup update handlers
-            this.registration.addEventListener('updatefound', this.handleUpdate);
+            registration.addEventListener('updatefound', self.handleUpdate);
 
-            if (this.options.onSuccess) {
-                this.options.onSuccess(this.registration);
+            if (self.options.onSuccess) {
+                self.options.onSuccess(registration);
             }
 
-            return true;
-        } catch (error) {
-            this.log('Registration error:', error);
+            return registration;
+        }).catch(function (error) {
+            self.log('Registration error:', error);
 
-            if (this.options.onError) {
-                this.options.onError(error);
+            if (self.options.onError) {
+                self.options.onError(error);
             }
 
-            return false;
-        }
-    }
+            throw error;
+        });
+    };
 
-    handleUpdate() {
-        const newWorker = this.registration.installing;
+    // Handle service worker updates
+    ServiceWorkerManager.prototype.handleUpdate = function () {
+        var self = this;
+        var newWorker = this.registration.installing;
 
-        newWorker.addEventListener('statechange', () => {
+        newWorker.addEventListener('statechange', function () {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 // New service worker is available
-                this.log('New Service Worker available');
+                self.log('New Service Worker available');
 
-                if (this.options.autoReload) {
+                if (self.options.autoReload) {
                     // Show notification or auto-reload
                     if (confirm('New version available! Reload to update?')) {
                         window.location.reload();
@@ -73,79 +84,62 @@ class ServiceWorkerManager {
                 }
             }
         });
-    }
+    };
 
-    async update() {
+    // Check for service worker updates
+    ServiceWorkerManager.prototype.update = function () {
+        var self = this;
+
         if (!this.registration) {
             this.log('No registration available to update');
-            return false;
+            return Promise.resolve(false);
         }
 
-        try {
-            await this.registration.update();
-            this.log('Service Worker update check triggered');
-            return true;
-        } catch (error) {
-            this.log('Update error:', error);
-            return false;
-        }
-    }
+        return this.registration.update()
+            .then(function () {
+                self.log('Service Worker update check triggered');
+                return true;
+            })
+            .catch(function (error) {
+                self.log('Update error:', error);
+                return false;
+            });
+    };
 
-    async unregister() {
+    // Unregister the service worker
+    ServiceWorkerManager.prototype.unregister = function () {
+        var self = this;
+
         if (!this.registration) {
             this.log('No registration available to unregister');
-            return false;
+            return Promise.resolve(false);
         }
 
-        try {
-            const result = await this.registration.unregister();
-            this.isRegistered = !result;
-            this.log('Service Worker unregistered:', result);
-            return result;
-        } catch (error) {
-            this.log('Unregister error:', error);
-            return false;
-        }
-    }
+        return this.registration.unregister()
+            .then(function (result) {
+                self.isRegistered = !result;
+                self.log('Service Worker unregistered:', result);
+                return result;
+            })
+            .catch(function (error) {
+                self.log('Unregister error:', error);
+                return false;
+            });
+    };
 
-    log(...args) {
+    // Logging helper with debug mode check
+    ServiceWorkerManager.prototype.log = function () {
         if (this.options.debug) {
-            console.log('[ServiceWorkerManager]', ...args);
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift('[ServiceWorkerManager]');
+            console.log.apply(console, args);
         }
-    }
+    };
+
+    return ServiceWorkerManager;
+})();
+
+// If this script is executed in Node.js environment (for tests)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { ServiceWorkerManager: ServiceWorkerManager };
 }
-
-
-//Inititalizaton of client of the current window to talk to service worker
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Register service worker
-    const swManager = new ServiceWorkerManager({
-        debug: true,
-        onSuccess: (registration) => {
-            console.log('Service Worker registration successful');
-
-            // Initialize client after service worker is registered
-            initWorkerClient();
-        }
-    });
-
-    swManager.register();
-});
-
-function initWorkerClient() {
-    const workerClient = new WorkerClient({
-        clientType: 'editor',  // or 'dashboard' or whatever is appropriate
-        metadata: {
-            pageId: generatePageId(),
-            // Other metadata specific to your application
-        },
-        debug: true
-    });
-
-    // Make the client accessible globally for your application
-    window.workerClient = workerClient;
-}
-
-
-export { ServiceWorkerManager };

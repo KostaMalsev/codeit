@@ -1,9 +1,13 @@
-// ==========================================
-// CLIENT IMPLEMENTATION
-// ==========================================
+// File: /worker/worker-client.js
+// Using traditional non-module syntax for better compatibility
 
-class WorkerClient {
-    constructor(options = {}) {
+// WorkerClient class for interacting with the service worker
+var WorkerClient = (function () {
+
+    // Constructor
+    function WorkerClient(options) {
+        options = options || {};
+
         this.options = {
             clientType: options.clientType || 'generic',
             metadata: options.metadata || {},
@@ -26,7 +30,8 @@ class WorkerClient {
         this.init();
     }
 
-    async init() {
+    // Initialize the client
+    WorkerClient.prototype.init = function () {
         try {
             // Check if the browser supports service workers
             if (!('serviceWorker' in navigator)) {
@@ -42,9 +47,10 @@ class WorkerClient {
                 this.registerWithWorker();
             } else {
                 // Wait for the service worker to be activated
-                navigator.serviceWorker.ready.then(registration => {
-                    this.serviceWorker = registration.active;
-                    this.registerWithWorker();
+                var self = this;
+                navigator.serviceWorker.ready.then(function (registration) {
+                    self.serviceWorker = registration.active;
+                    self.registerWithWorker();
                 });
             }
 
@@ -52,9 +58,10 @@ class WorkerClient {
         } catch (error) {
             console.error('Failed to initialize WorkerClient:', error);
         }
-    }
+    };
 
-    registerWithWorker() {
+    // Register with the service worker
+    WorkerClient.prototype.registerWithWorker = function () {
         if (!this.serviceWorker) {
             this.log('No active service worker found');
             return;
@@ -69,10 +76,11 @@ class WorkerClient {
         });
 
         this.log('Registration request sent to service worker');
-    }
+    };
 
-    handleMessage(event) {
-        const message = event.data;
+    // Handle incoming messages from the service worker
+    WorkerClient.prototype.handleMessage = function (event) {
+        var message = event.data;
 
         switch (message.type) {
             case 'REGISTRATION_CONFIRMED':
@@ -82,11 +90,11 @@ class WorkerClient {
 
                 // Process queued messages
                 while (this.messageQueue.length > 0) {
-                    const queuedMessage = this.messageQueue.shift();
+                    var queuedMessage = this.messageQueue.shift();
                     this.sendToWorker(queuedMessage);
                 }
 
-                this.log(`Registration confirmed. Client ID: ${this.clientId}`);
+                this.log('Registration confirmed. Client ID: ' + this.clientId);
 
                 // Call the registration handler if provided
                 if (this.options.messageHandlers.onRegistered) {
@@ -96,8 +104,8 @@ class WorkerClient {
 
             case 'PONG':
                 // Calculate latency
-                const latency = Date.now() - message.originalTimestamp;
-                this.log(`Pong received. Latency: ${latency}ms`);
+                var latency = Date.now() - message.originalTimestamp;
+                this.log('Pong received. Latency: ' + latency + 'ms');
 
                 if (this.options.messageHandlers.onPong) {
                     this.options.messageHandlers.onPong(message, latency);
@@ -134,9 +142,10 @@ class WorkerClient {
                     this.options.messageHandlers.onCustomMessage(message);
                 }
         }
-    }
+    };
 
-    sendToWorker(message) {
+    // Send a message to the service worker
+    WorkerClient.prototype.sendToWorker = function (message) {
         if (!this.serviceWorker) {
             this.log('No service worker available');
             return false;
@@ -156,55 +165,67 @@ class WorkerClient {
             console.error('Failed to send message to service worker:', error);
             return false;
         }
-    }
+    };
 
-    ping() {
+    // Send ping to service worker
+    WorkerClient.prototype.ping = function () {
         return this.sendToWorker({
             type: 'PING',
             timestamp: Date.now()
         });
-    }
+    };
 
-    broadcast(payload) {
+    // Broadcast a message to all other clients
+    WorkerClient.prototype.broadcast = function (payload) {
         return this.sendToWorker({
             type: 'BROADCAST',
-            payload,
+            payload: payload,
             timestamp: Date.now()
         });
-    }
+    };
 
-    sendDirectMessage(targetClientId, payload) {
+    // Send a direct message to a specific client
+    WorkerClient.prototype.sendDirectMessage = function (targetClientId, payload) {
         return this.sendToWorker({
             type: 'DIRECT_MESSAGE',
-            targetClientId,
-            payload,
+            targetClientId: targetClientId,
+            payload: payload,
             timestamp: Date.now()
         });
-    }
+    };
 
-    updateMetadata(metadata) {
-        this.options.metadata = { ...this.options.metadata, ...metadata };
+    // Update client metadata
+    WorkerClient.prototype.updateMetadata = function (metadata) {
+        // Merge new metadata with existing
+        for (var key in metadata) {
+            if (metadata.hasOwnProperty(key)) {
+                this.options.metadata[key] = metadata[key];
+            }
+        }
 
         return this.sendToWorker({
             type: 'UPDATE_METADATA',
-            metadata,
+            metadata: metadata,
             timestamp: Date.now()
         });
-    }
+    };
 
-    startPingInterval() {
+    // Start periodic ping interval
+    WorkerClient.prototype.startPingInterval = function () {
         // Clear existing interval if any
         if (this.pingInterval) {
             clearInterval(this.pingInterval);
         }
 
         // Start regular pings
-        this.pingInterval = setInterval(() => {
-            this.ping();
+        var self = this;
+        this.pingInterval = setInterval(function () {
+            self.ping();
         }, 30000); // Send ping every 30 seconds
-    }
+    };
 
-    disconnect() {
+    // Disconnect from the service worker
+    WorkerClient.prototype.disconnect = function () {
         // Stop ping interval
         if (this.pingInterval) {
             clearInterval(this.pingInterval);
@@ -223,13 +244,21 @@ class WorkerClient {
         }
 
         this.isRegistered = false;
-    }
+    };
 
-    log(...args) {
+    // Logging helper with debug mode check
+    WorkerClient.prototype.log = function () {
         if (this.options.debug) {
-            console.log('[WorkerClient]', ...args);
+            var args = Array.prototype.slice.call(arguments);
+            args.unshift('[WorkerClient]');
+            console.log.apply(console, args);
         }
-    }
-}
+    };
 
-export { WorkerClient };
+    return WorkerClient;
+})();
+
+// If this script is executed in Node.js environment (for tests)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { WorkerClient: WorkerClient };
+}

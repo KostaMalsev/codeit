@@ -1,12 +1,16 @@
+// File: /worker/worker-communication-manager.js
+// Using traditional non-module syntax for service worker compatibility
+
 // Communication Manager for the Service Worker
-class CommunicationManager {
-    constructor() {
+(function (self) {
+    // Constructor for the communication manager
+    function CommunicationManager() {
         this.clients = new Map(); // Store client IDs and their metadata
         this.initCleanupInterval();
     }
 
     // Handle incoming messages from clients
-    handleMessage(event) {
+    CommunicationManager.prototype.handleMessage = function (event) {
         const clientId = event.source.id;
         const message = event.data;
 
@@ -16,10 +20,10 @@ class CommunicationManager {
         else {
             this.processClientMessage(clientId, message);
         }
-    }
+    };
 
     // Register a new client
-    registerClient(clientSource, message) {
+    CommunicationManager.prototype.registerClient = function (clientSource, message) {
         const clientId = clientSource.id;
 
         // Store client information
@@ -42,10 +46,10 @@ class CommunicationManager {
 
         // Notify other clients about new connection
         this.notifyClientsAboutPeers();
-    }
+    };
 
     // Process incoming client messages by type
-    processClientMessage(clientId, message) {
+    CommunicationManager.prototype.processClientMessage = function (clientId, message) {
         const client = this.clients.get(clientId);
 
         // Update last active timestamp
@@ -79,7 +83,7 @@ class CommunicationManager {
 
             case 'UPDATE_METADATA':
                 if (client) {
-                    client.metadata = { ...client.metadata, ...message.metadata };
+                    client.metadata = Object.assign({}, client.metadata, message.metadata);
                 }
                 break;
 
@@ -89,10 +93,10 @@ class CommunicationManager {
                 console.log(`Client disconnected: ${clientId}`);
                 break;
         }
-    }
+    };
 
     // Handle intercepted fetch requests
-    async handleFetchRequest(request, clientId) {
+    CommunicationManager.prototype.handleFetchRequest = async function (request, clientId) {
         const client = this.clients.get(clientId);
 
         // Clone the request to avoid consuming it
@@ -145,10 +149,10 @@ class CommunicationManager {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-    }
+    };
 
     // Send message to a specific client
-    async sendMessageToClient(clientId, message) {
+    CommunicationManager.prototype.sendMessageToClient = async function (clientId, message) {
         try {
             const allClients = await self.clients.matchAll();
             const targetClient = allClients.find(client => client.id === clientId);
@@ -162,10 +166,10 @@ class CommunicationManager {
             console.error(`Error sending message to client ${clientId}:`, error);
             return false;
         }
-    }
+    };
 
     // Broadcast message to all clients except sender
-    async broadcastMessage(senderId, message) {
+    CommunicationManager.prototype.broadcastMessage = async function (senderId, message) {
         try {
             const allClients = await self.clients.matchAll();
 
@@ -185,10 +189,10 @@ class CommunicationManager {
             console.error('Error broadcasting message:', error);
             return false;
         }
-    }
+    };
 
     // Notify all clients about connected peers
-    async notifyClientsAboutPeers() {
+    CommunicationManager.prototype.notifyClientsAboutPeers = async function () {
         try {
             const allClients = await self.clients.matchAll();
             const clientList = Array.from(this.clients.values()).map(client => ({
@@ -207,16 +211,18 @@ class CommunicationManager {
         } catch (error) {
             console.error('Error notifying clients about peers:', error);
         }
-    }
+    };
 
     // Initialize periodic cleanup of disconnected clients
-    initCleanupInterval() {
-        setInterval(async () => {
+    CommunicationManager.prototype.initCleanupInterval = function () {
+        const manager = this;
+
+        setInterval(async function () {
             const TIMEOUT = 5 * 60 * 1000; // 5 minutes
             const now = Date.now();
 
             // Check all registered clients
-            for (const [clientId, clientData] of this.clients.entries()) {
+            for (const [clientId, clientData] of manager.clients.entries()) {
                 if (now - clientData.lastActive > TIMEOUT) {
                     try {
                         // Verify if client is still connected
@@ -225,7 +231,7 @@ class CommunicationManager {
 
                         if (!clientExists) {
                             console.log(`Client ${clientId} timed out, removing from registry`);
-                            this.clients.delete(clientId);
+                            manager.clients.delete(clientId);
                         }
                     } catch (error) {
                         console.error(`Error checking client ${clientId} status:`, error);
@@ -233,8 +239,9 @@ class CommunicationManager {
                 }
             }
         }, 60000); // Run every minute
-    }
-}
+    };
 
-// Make the CommunicationManager available to the service worker
-self.CommunicationManager = CommunicationManager;
+    // Make the CommunicationManager available to the service worker
+    self.CommunicationManager = CommunicationManager;
+
+})(self);

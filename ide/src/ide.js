@@ -1,11 +1,13 @@
-import FileBrowser from './core/FileBrowser.js';
-import * as GitAuth from './services/GitAuth.js';
-import { ServiceWorkerManager } from '../../worker/service-worker-registration.js';
-import { WorkerClient } from '../../worker/worker-client.js';
+// File: /ide/src/ide.js
 
-// Initialize the application
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize the service worker first
+    // Make sure the required scripts are loaded
+    await ensureScriptsLoaded([
+        '/worker/service-worker-registration.js',
+        '/worker/worker-client.js'
+    ]);
+
+    // Initialize the service worker manager
     const swManager = new ServiceWorkerManager({
         debug: true,
         onSuccess: (registration) => {
@@ -23,6 +25,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Register the service worker
     swManager.register();
 });
+
+// Helper function to ensure scripts are loaded
+function ensureScriptsLoaded(scripts) {
+    return Promise.all(scripts.map(scriptUrl => {
+        return new Promise((resolve, reject) => {
+            // Check if script is already loaded
+            if (document.querySelector(`script[src="${scriptUrl}"]`)) {
+                resolve();
+                return;
+            }
+
+            // Load the script
+            const script = document.createElement('script');
+            script.src = scriptUrl;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }));
+}
 
 // Initialize the worker client
 function initWorkerClient() {
@@ -44,6 +66,10 @@ function initWorkerClient() {
             onBroadcast: (message) => {
                 // Handle broadcasts from other tabs/windows
                 handleBroadcastMessage(message);
+            },
+            onPeerUpdate: (message) => {
+                console.log('Connected IDE instances:', message.peers.length);
+                // Update UI if needed to show other connected instances
             }
         }
     });
@@ -54,6 +80,10 @@ function initWorkerClient() {
 
 // Initialize the main application
 async function initApp() {
+    // Import the FileBrowser and GitAuth
+    const FileBrowser = window.FileBrowser || await importFileBrowser();
+    const GitAuth = window.GitAuth || await importGitAuth();
+
     // Create the FileBrowser instance
     const fileBrowser = new FileBrowser();
 
@@ -61,7 +91,7 @@ async function initApp() {
     window.fileBrowser = fileBrowser;
 
     // Register LiveView with the worker client if available
-    if (window.workerClient) {
+    if (window.workerClient && fileBrowser.liveView) {
         registerLiveView(fileBrowser.liveView);
     }
 
@@ -70,6 +100,28 @@ async function initApp() {
 
     // Load data from storage
     fileBrowser.storageService.loadFromStorage(fileBrowser);
+}
+
+// Import FileBrowser if not already available
+function importFileBrowser() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = './core/FileBrowser.js';
+        script.onload = () => resolve(window.FileBrowser);
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Import GitAuth if not already available
+function importGitAuth() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = './services/GitAuth.js';
+        script.onload = () => resolve(window.GitAuth);
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
 }
 
 // Register LiveView with the worker client
